@@ -1,0 +1,86 @@
+---
+const { head } = Astro.locals.starlightRoute;
+
+const themeFavicon = {
+	tag: 'link',
+	attrs: {
+		rel: 'icon',
+		type: 'image/svg+xml',
+		href: '/favicon.svg',
+		id: 'theme-favicon',
+	},
+};
+
+const filteredHead = head.filter((entry) => {
+	return !(entry.tag === 'link' && entry.attrs?.rel === 'shortcut icon');
+});
+
+const headWithThemeIcon = [...filteredHead, themeFavicon];
+---
+
+{headWithThemeIcon.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+
+<script is:inline>
+	(() => {
+		const lightHref = '/favicon-dark.svg';
+		const darkHref = '/favicon.svg';
+		const storageKey = 'starlight-theme';
+
+		const getStoredTheme = () => {
+			try {
+				return localStorage.getItem(storageKey);
+			} catch {
+				return null;
+			}
+		};
+
+		const prefersLight = () =>
+			window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+
+		const resolveTheme = () => {
+			const stored = getStoredTheme();
+			if (stored === 'light' || stored === 'dark') return stored;
+			return prefersLight() ? 'light' : 'dark';
+		};
+
+		const applyTheme = (theme) => {
+			const link = document.querySelector('link#theme-favicon');
+			if (!link) return;
+			const nextHref = theme === 'dark' ? darkHref : lightHref;
+			if (link.getAttribute('href') !== nextHref) {
+				link.setAttribute('href', nextHref);
+			}
+		};
+
+		const applyFromDataset = () => {
+			const theme = document.documentElement.dataset.theme;
+			if (theme === 'light' || theme === 'dark') {
+				applyTheme(theme);
+			} else {
+				applyTheme(resolveTheme());
+			}
+		};
+
+		applyTheme(resolveTheme());
+
+		const observer = new MutationObserver(applyFromDataset);
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme'],
+		});
+
+		const media = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
+		if (media) {
+			const onChange = () => {
+				const stored = getStoredTheme();
+				if (!stored) applyFromDataset();
+			};
+
+			if (typeof media.addEventListener === 'function') {
+				media.addEventListener('change', onChange);
+			} else if (typeof media.addListener === 'function') {
+				media.addListener(onChange);
+			}
+		}
+	})();
+</script>
