@@ -3,54 +3,50 @@ title: What is Consensus Protocol?
 description: A decentralized x402 HTTP proxy service network
 ---
 
-Consensus is a decentralized **HTTPS protocol** that operates as a proxy on behalf of applications.
+Consensus is a decentralized **HTTPS protocol** that operates as a [proxy](https://en.wikipedia.org/wiki/Proxy_server) on behalf of applications. More simply, Consensus Protocol is a network for sharing compute resources.
 
-It provides a secure, authenticated, and payment-enforced layer for HTTP requests, ensuring that requests are executed **once**, responses are **verifiable**, and access to network resources is **fairly priced**.
+<img
+  src="/consensus.png"
+  alt="High-level Consensus request flow"
+  class="consensus-diagram light"
+/>
+<img
+  src="/consensus-dark.png"
+  alt="High-level Consensus request flow"
+  class="consensus-diagram dark"
+/>
 
----
+## How It Works
 
-## Core properties
+Consensus sits **between an application and an external HTTP service**. Applications send standard HTTP requests to the Consensus network. 
 
-:::note[HTTPS by default]
-Consensus operates entirely over **HTTPS**, ensuring encrypted transport for all requests and responses.
-:::
+Incoming requests are [canonicalized](https://en.wikipedia.org/wiki/Canonicalization) to produce a unique signature. If an identical request has already been processed successfully, Consensus returns the cached response instead of executing the request again.
 
-:::note[Mutual authentication (mTLS)]
-All participants interacting with the network authenticate using **mutual Transport Layer Security (mTLS)**.  
-This guarantees the **integrity** and **authenticity** of data exchanged within the network.
-:::
+<img
+  src="/proxy.png"
+  alt="High-level Consensus request flow"
+  class="consensus-diagram light"
+/>
+<img
+  src="/proxy-dark.png"
+  alt="High-level Consensus request flow"
+  class="consensus-diagram dark"
+/>
 
-:::note[Payment-enforced routes]
-All Consensus routes are protected by **[x402](https://www.x402.org)** — an HTTP payment protocol that requires users to pay before requests are processed.
-:::
+## An Economy for Computation
 
----
+Consensus is a **paid HTTP proxy network** with built-in caching and deduplication.
 
-## What Consensus does
+The network maintains a shared cache of executed requests. When a request has already been processed, the cached result is returned instantly—reducing costs and API load. This creates an economic incentive to provide compute, while preventing waste from duplicate execution.
 
-Consensus acts as a **deduplicating proxy**.
+Rather than relying on trust or centralized control, Consensus coordinates access to compute through **protocol-level pricing**.
 
-Incoming requests are **canonicalized** to produce a unique fingerprint. If an identical request has already been processed, Consensus returns the cached response instead of executing the request again.
+## Use Cases
 
-:::tip[Why this matters]
-In replicated systems, the same HTTP request may be issued many times by different nodes.  
-Consensus ensures **one execution, one payment, one result** — regardless of how many replicas are involved.
-:::
+### Reducing API Exhaustion
 
-This makes Consensus especially useful for **replicated systems**, such as blockchains, where deterministic behavior and cost control are critical.
+[Your content here]
 
----
+### Privacy Through IP Masking
 
-## High-level architecture
-
-```mermaid
-flowchart LR
-    A[Application / Node]
-    B[Consensus Network]
-    C[External HTTP Service]
-
-    A -->|HTTPS request| B
-    B -->|Authenticated & paid request| C
-    C -->|Response| B
-    B -->|Cached / verified response| A
-```
+[Your content here - the IP whitelisting example]

@@ -1,0 +1,12 @@
+.consensus-diagram {
+  width: 100%;
+  display: none;
+}
+
+html[data-theme='light'] .consensus-diagram.light {
+  display: block;
+}
+
+html[data-theme='dark'] .consensus-diagram.dark {
+  display: block;
+}
