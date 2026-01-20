@@ -1,4 +1,4 @@
 ---
-title: Joining the network
+title: Installing Consensus Node
 description: Sending your first Consensus request 
 ---

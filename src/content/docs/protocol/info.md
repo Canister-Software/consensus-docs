@@ -18,7 +18,7 @@ Consensus is a decentralized **HTTPS protocol** that operates as a [proxy](https
 
 ## How It Works
 
-Consensus sits **between an application and an external HTTP service**. Applications send standard HTTP requests to the Consensus network. 
+Consensus sits **between an application and an external HTTP service**. Applications send standard HTTP requests to the Consensus network.
 
 Incoming requests are [canonicalized](https://en.wikipedia.org/wiki/Canonicalization) to produce a unique signature. If an identical request has already been processed successfully, Consensus returns the cached response instead of executing the request again.
 
@@ -43,10 +43,8 @@ Rather than relying on trust or centralized control, Consensus coordinates acces
 
 ## Use Cases
 
+Many modern systems rely on external HTTP services but struggle to coordinate how and when those requests are executed. Consensus is a coordination protocol that ensures side-effectful HTTP requests execute exactly once across replicated systems, without relying on trust or centralized control. Duplicate requests waste resources, inconsistent responses create instability, and an IP-based trust models break down in distributed environments.
+
 ### Reducing API Exhaustion
 
-[Your content here]
-
 ### Privacy Through IP Masking
-
-[Your content here - the IP whitelisting example]
