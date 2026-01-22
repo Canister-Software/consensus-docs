@@ -25,11 +25,11 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'Conesensus Nodes',
+					label: 'Nodes',
 					autogenerate: {directory: 'nodes'},
 				},
 				{
-					label: 'Consensus CLI',
+					label: 'CLI',
 					autogenerate: { directory: 'cli' },
 				},
 				{
