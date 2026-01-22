@@ -1,6 +1,6 @@
 ---
-title: Core Concepts
-description: Introduce Consensus core concepts
+title: Responsiblities
+description: Introduce Node responsiblities
 ---
 
 <img

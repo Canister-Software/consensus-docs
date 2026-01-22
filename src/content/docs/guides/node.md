@@ -1,6 +1,6 @@
 ---
-title: Core Concepts
-description: Introduce Consensus core concepts
+title: Setting up a node
+description: How to join network
 ---
 
 <img

@@ -1,6 +1,6 @@
 ---
-title: Core Concepts
-description: Introduce Consensus core concepts
+title: Node API
+description: Introduce Node interface
 ---
 
 <img

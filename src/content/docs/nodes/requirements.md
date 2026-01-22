@@ -1,6 +1,6 @@
 ---
-title: Core Concepts
-description: Introduce Consensus core concepts
+title: Requirements
+description: Introduce Node requirements 
 ---
 
 <img

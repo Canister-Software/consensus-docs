@@ -1,4 +1,13 @@
 ---
 title: Setup
-description: A reference page in my new Starlight docs site.
+description: Setting up Consensus cli
 ---
+<img
+src="/construction.png"
+alt="Replicated nodes independently calling an external API"
+class="consensus-diagram light"
+/> <img
+src="/constructiondark.png"
+alt="Replicated nodes independently calling an external API"
+class="consensus-diagram dark"
+/>

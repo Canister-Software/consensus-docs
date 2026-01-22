@@ -1,6 +1,6 @@
 ---
-title: Core Concepts
-description: Introduce Consensus core concepts
+title: Routing a request 
+description: Introduce Node requirements 
 ---
 
 <img
