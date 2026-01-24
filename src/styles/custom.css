@@ -1,3 +1,19 @@
+:root {
+  --sl-color-accent: #fff;
+  --sl-color-accent-high: #fff;
+  --sl-color-accent-low: #2a2a2a;
+  --sl-color-text-accent: #fff;
+  --sl-color-bg-accent: #fff;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent: #000;
+  --sl-color-accent-high: #000;
+  --sl-color-accent-low: #e6e6e6;
+  --sl-color-text-accent: #000;
+  --sl-color-bg-accent: #000;
+}
+
 .consensus-diagram {
   width: 100%;
   display: none;
@@ -9,4 +25,56 @@ html[data-theme='light'] .consensus-diagram.light {
 
 html[data-theme='dark'] .consensus-diagram.dark {
   display: block;
+}
+
+.hero .actions {
+  align-items: center;
+}
+
+.hero .actions .sl-link-button.wp-cta {
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  gap: 0.55rem;
+  border-color: currentColor;
+  color: var(--sl-color-text-accent);
+  background: transparent;
+  font-weight: 600;
+}
+
+.hero .actions .sl-link-button.wp-cta::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: center / contain no-repeat;
+  background-image: url('../assets/logo-dark.svg');
+}
+
+.hero .actions .sl-link-button.wp-cta:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+html[data-theme='dark'] .hero .actions .sl-link-button.wp-cta::before {
+  background-image: url('../assets/logo-light.svg');
+}
+
+html[data-theme='light'] .hero .actions .sl-link-button.wp-cta::before {
+  background-image: url('../assets/logo-dark.svg');
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme='light']) .hero .actions .sl-link-button.wp-cta::before {
+    background-image: url('../assets/logo-light.svg');
+  }
+}
+
+@media (min-width: 50rem) {
+  .hero .actions .sl-link-button.wp-cta {
+    min-height: 48px;
+    padding: 0.85rem 1.5rem;
+  }
+
+  .hero .actions .sl-link-button.wp-cta::before {
+    width: 20px;
+    height: 20px;
+  }
 }
