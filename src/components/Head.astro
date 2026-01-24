@@ -45,3 +45,82 @@ const headWithOsIcon = [...filteredHead, osFavicon];
     mq.addEventListener('change', (e) => apply(e.matches));
   })();
 </script>
+
+<script is:inline>
+  (() => {
+    const selector = '.consensus-diagram';
+
+    const init = () => {
+      const existing = document.getElementById('diagram-lightbox');
+      const dialog =
+        existing ||
+        (() => {
+          const el = document.createElement('dialog');
+          el.id = 'diagram-lightbox';
+          el.innerHTML = `
+            <div class="diagram-lightbox__frame">
+              <img class="diagram-lightbox__img" alt="" />
+            </div>
+          `;
+          (document.body || document.documentElement).appendChild(el);
+          return el;
+        })();
+
+      const img = dialog.querySelector('.diagram-lightbox__img');
+      if (!img) return;
+
+      const close = () => {
+        dialog.removeAttribute('data-zoom');
+        dialog.removeAttribute('data-zoom-origin');
+        img.removeAttribute('src');
+        dialog.close();
+      };
+
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) close();
+      });
+
+      dialog.addEventListener('close', () => {
+        dialog.removeAttribute('data-zoom');
+        dialog.removeAttribute('data-zoom-origin');
+        img.removeAttribute('src');
+      });
+
+      const setZoomOrigin = (event) => {
+        const rect = img.getBoundingClientRect();
+        if (!rect.width) return;
+        const offset = (event.clientX - rect.left) / rect.width;
+        if (offset < 0.33) dialog.dataset.zoomOrigin = 'left';
+        else if (offset > 0.66) dialog.dataset.zoomOrigin = 'right';
+        else dialog.dataset.zoomOrigin = 'center';
+      };
+
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (dialog.dataset.zoom === 'in') {
+          dialog.dataset.zoom = '';
+          return;
+        }
+        setZoomOrigin(e);
+        dialog.dataset.zoom = 'in';
+      });
+
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLImageElement)) return;
+        if (!target.matches(selector)) return;
+        e.preventDefault();
+        img.src = target.currentSrc || target.src;
+        img.alt = target.alt || '';
+        dialog.removeAttribute('data-zoom');
+        dialog.showModal();
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+  })();
+</script>

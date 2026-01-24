@@ -5,6 +5,11 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Consensus Docs',
+			logo: {
+				dark: './src/assets/logo-light.svg',
+				light: './src/assets/logo-dark.svg',
+				alt: 'Consensus',
+			},
 			customCss: ['./src/styles/custom.css'],
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/demali-876/consensus' },
 					 {icon: 'discord', label: 'Discord', href: 'https://discord.gg/6aquHGsn'}],

@@ -17,6 +17,7 @@
 .consensus-diagram {
   width: 100%;
   display: none;
+  cursor: zoom-in;
 }
 
 html[data-theme='light'] .consensus-diagram.light {
@@ -25,6 +26,67 @@ html[data-theme='light'] .consensus-diagram.light {
 
 html[data-theme='dark'] .consensus-diagram.dark {
   display: block;
+}
+
+.site-title {
+  gap: 0.4rem;
+}
+
+.site-title img {
+  margin-right: 0;
+}
+
+#diagram-lightbox {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+}
+
+#diagram-lightbox::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.diagram-lightbox__frame {
+  width: min(96vw, 1100px);
+  height: min(90vh, 900px);
+  margin: 4vh auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.diagram-lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  transition: transform 180ms ease;
+}
+
+#diagram-lightbox[data-zoom='in'] .diagram-lightbox__frame {
+  overflow: auto;
+}
+
+#diagram-lightbox[data-zoom='in'] .diagram-lightbox__img {
+  transform: scale(1.6);
+  cursor: zoom-out;
+}
+
+#diagram-lightbox[data-zoom-origin='left'] .diagram-lightbox__img {
+  transform-origin: left center;
+}
+
+#diagram-lightbox[data-zoom-origin='center'] .diagram-lightbox__img {
+  transform-origin: center center;
+}
+
+#diagram-lightbox[data-zoom-origin='right'] .diagram-lightbox__img {
+  transform-origin: right center;
 }
 
 .hero .actions {
