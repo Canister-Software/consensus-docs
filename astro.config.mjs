@@ -2,9 +2,12 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+	site: "https://docs.consensus.canister.software",
+  	base: "/",
 	integrations: [
 		starlight({
 			title: 'Consensus Docs',
+			
 			logo: {
 				dark: './src/assets/logo-light.svg',
 				light: './src/assets/logo-dark.svg',
