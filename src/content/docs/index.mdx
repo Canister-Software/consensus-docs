@@ -11,8 +11,14 @@ hero:
     - text: Learn more
       link: /protocol/info/
       icon: right-arrow
-    - text: Read the Whitepaper(coming soon)
-      link: https://starlight.astro.build
-      icon: external
+    - text: Read the Whitepaper
+      link: "#whitepaper"
       variant: minimal
+      attrs:
+        class: wp-cta
+        aria-haspopup: dialog
 ---
+
+import WhitepaperModal from "../../components/WhitepaperModal.astro";
+
+<WhitepaperModal />
