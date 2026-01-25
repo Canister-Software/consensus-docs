@@ -1,5 +1,6 @@
 ---
 const id = "whitepaper-dialog";
+const endpoint = "https://consensus.canister.software:8888/hook/whitepaper-signup";
 ---
 
 <dialog id={id} class="wp" aria-labelledby="wp-title">
@@ -15,25 +16,25 @@ const id = "whitepaper-dialog";
       <button type="button" class="wp__x" data-wp-close aria-label="Close">×</button>
     </header>
 
-    <form id="wp-form" class="wp__form" method="post" action="/api/whitepaper">
+    <form
+      id="wp-form"
+      class="wp__form"
+      method="post"
+      action={endpoint}
+    >
       <div class="wp__pitch">
         <p class="wp__lead">
-        The Consensus whitepaper describes a protocol for coordinating HTTP and websocket execution across independent nodes, enabling deterministic outcomes without centralized control. It outlines:
+          The Consensus whitepaper describes a protocol for coordinating HTTP and websocket execution across independent nodes, enabling deterministic outcomes without centralized control. It outlines:
         </p>
         <ul class="wp__points">
-            <li>The problem space, protocol approach, and primary use cases</li>
-            <li>Network topology, security boundaries, and trust assumptions</li>
-            <li>Economic incentives, token design, and node participation criteria</li>
+          <li>The problem space, protocol approach, and primary use cases</li>
+          <li>Network topology, security boundaries, and trust assumptions</li>
+          <li>Economic incentives, token design, and node participation criteria</li>
         </ul>
       </div>
+
       <label class="wp__label" for="wp-name">Name</label>
-      <input
-        id="wp-name"
-        name="name"
-        type="text"
-        autocomplete="name"
-        required
-      />
+      <input id="wp-name" name="name" type="text" autocomplete="name" required />
 
       <label class="wp__label" for="wp-email">Email</label>
       <input
@@ -45,12 +46,29 @@ const id = "whitepaper-dialog";
         required
       />
 
+      <!-- Honeypot (optional but recommended) -->
+      <input
+        name="hp"
+        type="text"
+        autocomplete="off"
+        tabindex="-1"
+        style="position:absolute;left:-9999px;top:-9999px;"
+        aria-hidden="true"
+      />
+
       <div class="wp__actions">
         <button type="button" class="wp__btn wp__btn--ghost" data-wp-close>Not now</button>
         <button type="submit" class="wp__btn wp__btn--solid">Request access</button>
       </div>
 
-      <div id="wp-status" class="wp__status" data-state="" role="status" aria-live="polite" hidden>
+      <div
+        id="wp-status"
+        class="wp__status"
+        data-state=""
+        role="status"
+        aria-live="polite"
+        hidden
+      >
         <span id="wp-spinner" class="wp__spinner" aria-hidden="true"></span>
         <span id="wp-status-text"></span>
       </div>
@@ -127,7 +145,6 @@ const id = "whitepaper-dialog";
       if (e.target === dialog) closeDialog();
       return;
     }
-
     if (e.target instanceof Node && !shell.contains(e.target)) closeDialog();
   });
 
@@ -144,9 +161,7 @@ const id = "whitepaper-dialog";
   };
 
   nameInput?.addEventListener("keydown", (e) => {
-    if (e.key >= "0" && e.key <= "9") {
-      e.preventDefault();
-    }
+    if (e.key >= "0" && e.key <= "9") e.preventDefault();
   });
 
   nameInput?.addEventListener("input", stripNameDigits);
@@ -163,7 +178,9 @@ const id = "whitepaper-dialog";
     const fd = new FormData(form);
     const name = String(fd.get("name") || "").trim();
     const email = String(fd.get("email") || "").trim();
+
     if (!name || !email) return;
+
     if (!isEmailValid()) {
       setStatus("Invalid email format", "error");
       return;
@@ -172,14 +189,30 @@ const id = "whitepaper-dialog";
     try {
       setStatus("Saving to wait list...", "loading");
       setLoading(true);
-      const body = new URLSearchParams(fd);
-      const res = await fetch("/api/whitepaper", { method: "POST", body });
+
+      const endpoint = form?.getAttribute("action");
+      if (!endpoint) throw new Error("Missing endpoint");
+
+      const payload = {
+        name,
+        email,
+        hp: String(fd.get("hp") || ""),
+      };
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
       if (!res.ok) {
-        const payload = await res.json().catch(() => null);
-        throw new Error(payload?.error || "Request failed");
+        const errPayload = await res.json().catch(() => null);
+        throw new Error(errPayload?.error || "Request failed");
       }
+
       setStatus("Added to wait list. Opening protocol details...", "success");
       setLoading(false);
+
       setTimeout(() => {
         clearHash();
         window.location.href = "/protocol/info";
@@ -190,6 +223,7 @@ const id = "whitepaper-dialog";
     }
   });
 </script>
+
 
 <style>
   :root {

@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+	output:'static',
 	site: "https://docs.consensus.canister.software",
   	base: "/",
 	integrations: [
