@@ -35,11 +35,11 @@ Incoming requests are [canonicalized](https://en.wikipedia.org/wiki/Canonicaliza
 
 ## An economy for computation
 
-Consensus is a **paid HTTP proxy network** with built-in caching and deduplication.
+Consensus establishes an economic model for computation by pricing **access to execution itself**, rather than treating compute as an implicit side effect of infrastructure. The network coordinates both **HTTP request execution** and **long-lived WebSocket sessions** as paid, protocol-level resources.
 
-The network maintains a shared cache of executed requests. When a request has already been processed, the cached result is returned instantly—reducing costs and upstream API load. This creates an economic incentive to provide compute, while preventing waste from duplicate execution.
+For HTTP, Consensus executes side-effectful requests exactly once and returns the same response to all identical callers, eliminating duplicate execution and reducing upstream API load through deterministic caching and deduplication. For WebSockets, Consensus introduces metered, prepaid sessions that allow interactive computation to occur within explicitly defined time and data limits.
 
-Rather than relying on trust or centralized control, Consensus coordinates access to compute through **protocol-level pricing**.
+By requiring payment before execution and enforcing limits at the protocol layer, Consensus aligns incentives between consumers and providers of compute without relying on trust, centralized control, or traditional(ie. credit ord debit) billing systems. Compute becomes a scarce, accountable resource—accessible deterministically, shared where possible, paid for exactly once and without the need for an itermediatry.
 
 ## Use cases
 
@@ -225,3 +225,79 @@ As a result:
 * External gateways observe a **single, stable caller**, not many replicas
 
 This allows replicated programs to reliably interact with whitelist-protected services without sacrificing decentralization or operational correctness.
+
+### Prepaid WebSockets sessions
+
+Some workloads require **long-lived, interactive computation** rather than a single HTTP request. Examples include real-time data streams, interactive agents, live chats, and streaming analytics. These workloads naturally map to **WebSockets**, but traditional WebSocket infrastructure provides no protocol-level mechanism to price or bound execution.
+
+Once a WebSocket connection is established, computation may continue indefinitely. Data may flow without limit, and enforcement typically relies on application-level logic, API keys, or centralized billing systems. In decentralized or replicated environments, this makes real-time services difficult to expose safely and economically.
+
+Consensus addresses this by treating WebSocket access as **prepaid computation**, coordinated through HTTP using x402.
+
+<img
+src="/ws.png"
+alt="Consensus-based IP execution"
+class="consensus-diagram light"
+/> <img
+src="/ws-dark.png"
+alt="Consensus-based IP execution"
+class="consensus-diagram dark"
+/>
+
+The full flow is illustrated in the diagram above.
+
+A client begins by requesting WebSocket access over HTTP, specifying the desired execution limits:
+
+```http
+GET /ws?mode=time&minutes=1&megabytes=0
+```
+
+Because the request represents a request for computation, Consensus responds with an x402 challenge:
+
+```http
+402 Payment Required
+```
+
+The client retries the request with a valid x402 payment payload. Consensus verifies and settles the payment, then returns a session token and a connection URL:
+
+```json
+{
+  "token": "xyz",
+  "connect_url": "ws://consensus/ws-connect?token=xyz"
+}
+```
+
+The token represents the right to establish **exactly one WebSocket session** with predefined limits. In the example shown in the diagram, the token encodes the following constraints:
+
+```json
+{
+  "time_ms": 60000,
+  "data_mb": 100
+}
+```
+
+The client then upgrades to a WebSocket connection using the issued token:
+
+```text
+WS /ws-connect?token=xyz
+```
+
+Before upgrading the connection, Consensus validates the token. If the token is expired, already consumed, or invalid, the upgrade is rejected. If the token is valid, the HTTP connection is upgraded and a WebSocket session is established.
+
+Once the session begins, no further payment negotiation occurs. The WebSocket server enforces the prepaid limits deterministically. When the time limit or data limit is reached, the connection is closed. In the example shown in the diagram, the client sends an initial greeting:
+
+```text
+Hello from client!
+```
+
+The server responds normally:
+
+```text
+echo: Hello from client!
+```
+
+The session continues until the prepaid limits are exhausted. If additional computation is required, the client must acquire a new token by repeating the HTTP payment flow.
+
+By separating **payment and coordination over HTTP** from **interactive execution over WebSockets**, Consensus enables real-time computation to be exposed as a paid, bounded, protocol-level resource. Providers are compensated upfront, clients know costs in advance, and enforcement does not rely on trust, subscriptions, or centralized billing systems.
+
+This allows WebSocket-based services to operate safely and economically in decentralized and replicated environments while preserving deterministic execution and predictable cost.
