@@ -1,14 +1,7 @@
 ---
 title: Consensus API Schema
-description: Introduce Consensus core concepts
+description: Introduce Consensus API
 ---
 
-<img
-src="/construction.png"
-alt="Replicated nodes independently calling an external API"
-class="consensus-diagram light"
-/> <img
-src="/constructiondark.png"
-alt="Replicated nodes independently calling an external API"
-class="consensus-diagram dark"
-/>
+This page defines all the routes available on the Consensus x402 Server.
+

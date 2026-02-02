@@ -14,6 +14,13 @@
   --sl-color-bg-accent: #000;
 }
 
+:root[data-theme='dark'] {
+  --sl-color-black: #000;
+  --sl-color-bg: #000;
+  --sl-color-bg-nav: #000;
+  --sl-color-bg-sidebar: #000;
+}
+
 .consensus-diagram {
   width: 100%;
   display: none;
