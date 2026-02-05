@@ -1,31 +1,35 @@
 ---
-const siteTitle = 'Consensus Protocol Documentation | x402 Proxy Network';
-const defaultDescription =
-  'A peer-to-peer x402 proxy network enabling deterministic HTTP and WebSocket execution across independent nodes.';
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
 
-const canonicalUrl = Astro.url.href;
-const ogImage = new URL('/consensus-docs.png', Astro.site).href;
+const { head } = Astro.locals.starlightRoute;
+type HeadEntry = StarlightRouteData['head'][number];
+
+const ogImage = Astro.site
+  ? new URL('/consensus-docs.png', Astro.site).href
+  : '/consensus-docs.png';
+
+const hasMeta = (key: 'name' | 'property' | 'http-equiv', value: string) =>
+  head.some((entry: HeadEntry) => entry.tag === 'meta' && entry.attrs?.[key] === value);
+
+const hasOgImage = hasMeta('property', 'og:image');
+const hasOgImageWidth = hasMeta('property', 'og:image:width');
+const hasOgImageHeight = hasMeta('property', 'og:image:height');
+const hasTwitterImage = hasMeta('name', 'twitter:image');
+const hasTwitterCard = hasMeta('name', 'twitter:card');
 ---
 
-<title>{siteTitle}</title>
-<meta name="description" content={defaultDescription} />
-<link rel="canonical" href={canonicalUrl} />
+{
+  head.map((entry: HeadEntry) => {
+    const { tag: Tag, attrs, content } = entry;
+    return <Tag {...attrs} set:html={content} />;
+  })
+}
 
-<!-- Open Graph -->
-<meta property="og:type" content="website" />
-<meta property="og:url" content={canonicalUrl} />
-<meta property="og:title" content={siteTitle} />
-<meta property="og:description" content={defaultDescription} />
-<meta property="og:image" content={ogImage} />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-
-<!-- X / Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:url" content={canonicalUrl} />
-<meta name="twitter:title" content={siteTitle} />
-<meta name="twitter:description" content={defaultDescription} />
-<meta name="twitter:image" content={ogImage} />
+{!hasOgImage && <meta property="og:image" content={ogImage} />}
+{!hasOgImageWidth && <meta property="og:image:width" content="1200" />}
+{!hasOgImageHeight && <meta property="og:image:height" content="630" />}
+{!hasTwitterImage && <meta name="twitter:image" content={ogImage} />}
+{!hasTwitterCard && <meta name="twitter:card" content="summary_large_image" />}
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" id="os-favicon" />
