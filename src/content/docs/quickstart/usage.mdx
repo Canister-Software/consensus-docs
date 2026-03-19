@@ -1,0 +1,283 @@
+---
+title: Usage
+description: Route HTTP requests and open WebSocket sessions through the Consensus Network using ProxyClient and SocketClient
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+This guide covers the two main clients in `@canister-software/consensus-cli`:
+
+- **ProxyClient** — routes outbound HTTP through decentralized proxy nodes with automatic x402 micropayments
+- **SocketClient** — opens paid WebSocket sessions with automatic token acquisition and reconnection
+
+Both clients receive the `fetchWithPayment` instance you created in [Client Setup](/quickstart/request/). That is the only dependency.
+
+## Installation
+
+```bash
+npm install @canister-software/consensus-cli
+```
+
+---
+
+## ProxyClient
+
+`ProxyClient(fetchWithPayment, options)` returns a framework-agnostic proxy controller. It routes outbound HTTP through Consensus nodes, supports Express-compatible middleware, and can stand down to direct `fetch` when a spend limit is reached.
+
+### Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `mode` | `"inclusive" \| "exclusive"` | `"inclusive"` | `inclusive` proxies all routes **except** those in `routes`. `exclusive` proxies **only** the listed routes. |
+| `routes` | `string[]` | `[]` | Route paths to include or exclude depending on `mode`. |
+| `matchSubroutes` | `boolean` | `false` | When `true`, a route match also applies to all sub-paths beneath it. |
+| `strategy` | `"auto" \| "manual"` | `"auto"` | `auto` intercepts `fetch()` calls transparently. `manual` exposes `req.consensus.fetch()` for explicit control. |
+| `cache_ttl` | `number` | — | TTL in seconds for node-level response caching. |
+| `verbose` | `boolean` | `false` | Enables verbose response metadata from the proxy node. |
+| `node_region` | `string` | — | Prefer nodes in a specific geographic region. |
+| `node_domain` | `string` | — | Route through a specific node domain. |
+| `node_exclude` | `string` | — | Exclude a specific node domain from selection. |
+| `limit_usd` | `number` | — | Max proxy spend in USD (up to 6 decimals). When reached, proxying stands down to direct `fetch`. |
+| `on_limit_reached` | `(budget) => void` | — | Callback fired once when stand-down is activated. |
+
+:::note[Pricing]
+Spend tracking uses the fixed server price of **$0.0001** per paid `/proxy` request. Cached responses are not charged.
+:::
+
+### Auto Strategy
+
+In `auto` mode, `ProxyClient` intercepts the global `fetch()` within the request context — your route handlers require no changes.
+
+```ts
+import express from 'express'
+import { ProxyClient } from '@canister-software/consensus-cli'
+
+const app = express()
+
+// Proxy only /price — all other routes use direct fetch
+app.use(
+  ProxyClient(fetchWithPayment, {
+    mode: 'exclusive',
+    routes: ['/price'],
+    matchSubroutes: false,
+    strategy: 'auto',
+    cache_ttl: 60,
+    verbose: true,
+  })
+)
+
+// No changes needed — fetch() is automatically proxied for /price
+app.get('/price', async (_req, res) => {
+  const response = await fetch('https://api.example.com/price')
+  res.json(await response.json())
+})
+```
+
+### Manual Strategy
+
+In `manual` mode the proxy is not applied automatically. Use `req.consensus.fetch()` to explicitly proxy individual requests, or `req.consensus.request()` for a lower-level structured payload:
+
+```ts
+app.use(ProxyClient(fetchWithPayment, { strategy: 'manual' }))
+
+app.get('/data', async (req, res) => {
+  // Proxied fetch — returns a standard Response
+  const response = await req.consensus.fetch('https://api.example.com/data')
+  res.json(await response.json())
+
+  // Or use the structured request helper — returns a ProxyResponseShape
+  const result = await req.consensus.request({
+    target_url: 'https://api.example.com/data',
+    method: 'GET',
+  })
+  res.json(result.data)
+})
+```
+
+### Per-Request Node Selection
+
+Both `req.consensus.fetch()` and `req.consensus.request()` accept per-request options as a third argument to override node routing at the call level:
+
+```ts
+const response = await req.consensus.fetch(
+  'https://api.example.com/data',
+  { method: 'GET' },
+  { node_region: 'us-east', cache_ttl: 30 }
+)
+```
+
+### Framework-Agnostic Usage
+
+Use `runWithPath()` to scope interception in any server framework and `createFetch()` for explicit route-scoped fetch — no Express required:
+
+```ts
+const proxy = ProxyClient(fetchWithPayment, {
+  mode: 'exclusive',
+  routes: ['/api'],
+  limit_usd: 1.25,
+})
+
+// Scope interception to a path in any framework
+await proxy.runWithPath('/api', async () => {
+  const response = await fetch('https://api.example.com/data')
+  console.log(await response.json())
+})
+
+// Or create scoped fetch functions directly
+const apiFetch    = proxy.createFetch('/api')
+const directFetch = proxy.createFetch('/health')
+```
+
+### Spend Limits
+
+Set `limit_usd` to cap total proxy spend. When the limit is reached, all subsequent requests fall through to direct `fetch` automatically — nothing throws, nothing breaks:
+
+```ts
+ProxyClient(fetchWithPayment, {
+  limit_usd: 0.50,
+  on_limit_reached: (budget) => {
+    console.warn(`Proxy spend limit reached. Total spent: $${budget.spent_usd}`)
+  },
+})
+```
+
+---
+
+## SocketClient
+
+`SocketClient(fetchWithPayment, options)` opens paid WebSocket sessions through the Consensus Network. Token acquisition, spend tracking, and reconnection are all handled automatically.
+
+### Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `openTimeoutMs` | `number` | `12000` | Milliseconds to wait for the WebSocket connection to open before timing out. |
+| `reconnectIntervalMs` | `number` | `2000` | Milliseconds between automatic reconnection attempts. |
+| `defaults` | `ConsensusSocketTokenParams` | — | Default token parameters applied to every `requestToken()` call unless overridden. |
+| `limit_usd` | `number` | — | Max WebSocket spend in USD. If the next token quote would exceed the remaining budget, the token request is blocked. |
+| `on_limit_reached` | `(budget) => void` | — | Callback fired once when the spend limit is reached. |
+| `webSocketFactory` | `constructor` | auto-detected | Custom WebSocket constructor. Auto-detected as browser `WebSocket` or Node.js `ws` if not provided. |
+
+:::note[Pricing]
+Spend checks use a local quote computed from the known pricing model (`model`, `minutes`, `megabytes`) before any token purchase — no additional round trip.
+:::
+
+### Billing Models
+
+| Model | Description |
+|---|---|
+| `"hybrid"` | Billed by both time and data (default). |
+| `"time"` | Billed by duration only (`minutes`). |
+| `"data"` | Billed by data transfer only (`megabytes`). |
+
+### Basic Usage
+
+```ts
+import { SocketClient } from '@canister-software/consensus-cli'
+
+const client = SocketClient(fetchWithPayment, {
+  reconnectIntervalMs: 2000,
+})
+
+// 1. Request a session token — payment happens here
+const auth = await client.requestToken({
+  model: 'time',
+  minutes: 5,
+  megabytes: 0,
+})
+
+// 2. Connect using the token — returns a managed session
+const session = await client.connect(auth)
+
+session.on('open',    ()    => console.log('Connected'))
+session.on('message', (msg) => console.log('Received:', msg))
+session.on('error',   (err) => console.error('Error:', err))
+session.on('close',   ()    => console.log('Disconnected'))
+
+session.send('hello')
+
+// Close when done — also suppresses automatic reconnection
+session.close()
+```
+
+### Node Filtering
+
+Target specific proxy nodes for your WebSocket session at token-request time:
+
+```ts
+const auth = await client.requestToken({
+  model: 'hybrid',
+  minutes: 10,
+  megabytes: 100,
+  nodeRegion: 'eu-west',
+  nodeExclude: 'node.example.com',
+})
+```
+
+### Reconnection
+
+Sessions reconnect automatically on unexpected disconnects. `SocketClient` re-requests a fresh token using the same parameters from the last `requestToken()` call, then re-establishes the WebSocket.
+
+To stop reconnection permanently, call `session.close()` — this sets an internal flag that suppresses all further retry attempts.
+
+```ts
+// Control retry pacing
+const client = SocketClient(fetchWithPayment, {
+  reconnectIntervalMs: 5000, // retry every 5 s
+})
+```
+
+### Safe Mode
+
+Both `requestToken()` and `connect()` support a `{ safe: true }` option. Instead of throwing on error, they return a result object:
+
+```ts
+const result = await client.requestToken(
+  { model: 'time', minutes: 1 },
+  { safe: true }
+)
+
+if (!result.ok) {
+  console.error('Token request failed:', result.error)
+} else {
+  const session = await client.connect(result.data)
+}
+```
+
+### Session State
+
+Inspect the current connection state at any time:
+
+```ts
+const state = session.getState()
+// {
+//   connected:      boolean,
+//   reconnecting:   boolean,
+//   closedByCaller: boolean,
+// }
+```
+
+---
+
+## CLI Commands
+
+| Command | Description |
+|---|---|
+| `consensus setup` | Create a wallet and register it with the x402 proxy. |
+| `consensus setup --force` | Force re-create the account, resetting any existing configuration. |
+| `consensus help` | Show help message. |
+
+### Setup
+
+Run `consensus setup` once to initialize your environment. The CLI will:
+
+1. **Create a wallet** using your CDP credentials
+2. **Generate `.consensus-config.json`** containing your wallet and delegation credentials
+3. **Export wallet authorization** to the x402 proxy for payment delegation
+4. **Add `.consensus-config.json` to `.gitignore`** automatically to prevent accidental commits
+
+:::danger[Keep `.consensus-config.json` out of version control]
+It contains sensitive wallet credentials. The setup command adds it to `.gitignore` automatically — verify this if you use a custom `.gitignore`.
+
+Only fund the delegated wallet with amounts you are comfortable delegating. Do not keep large balances in it.
+:::
