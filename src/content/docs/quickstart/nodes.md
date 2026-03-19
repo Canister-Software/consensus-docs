@@ -1,6 +1,8 @@
 ---
 title: Installing Consensus Node
 description: Sending your first Consensus request 
+sidebar:
+  order: 3
 ---
 
 <img
