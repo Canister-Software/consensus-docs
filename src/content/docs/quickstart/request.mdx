@@ -1,0 +1,581 @@
+---
+title: Client Setup
+description: Set up an x402 client for ICP, SVM, or EVM and send your first request through the Consensus network
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+This guide walks through creating an x402 client that authenticates and pays for requests routed through the Consensus network. The same four-step pattern works across ICP, SVM, and EVM — only the signer setup and scheme registration differ.
+
+By the end you will have a working client that automatically handles the x402 payment flow: your code makes a normal `fetch` call and the client handles the `402 → sign → retry` cycle transparently.
+
+:::caution[Private keys are for server-side use only]
+PEM files, base58 keys, and hex private keys must only be loaded in **server-side** environments. Never import or expose a raw private key in browser code. Exposing your private keys can result in a complete loss of funds!
+:::
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or later
+- [npm](https://www.npmjs.com/)
+- A funded signing identity
+
+## Signers
+
+To create an x402 client, first generate a network-compatible `signer` object, then ensure the associated account is funded.
+
+<Tabs>
+  <TabItem label="ICP">
+
+Your ICP signing identity is generated from a PEM file. You can obtain this file from `dfx`, `icp-cli`, or by exporting from compatible wallets such as [Plug Wallet](https://plugwallet.ooo/). All three methods produce the same PEM artifact.
+
+---
+
+**Using dfx or icp-cli**
+
+`icp-cli` is the command-line tool for ICP development and identity management. It serves as the replacement for `dfx`.
+
+Export an existing dfx identity:
+
+```bash
+dfx identity export <identity-name> > identity.pem
+```
+
+Alternatively, using icp-cli:
+
+```bash
+icp identity export <identity-name> > identity.pem
+```
+
+---
+
+**Using Plug Wallet**
+
+[Plug Wallet](https://plugwallet.ooo/) stores your ICP identity in the browser extension. To use it in server-side applications, export the private key as a PEM file.
+
+**Export steps:**
+
+1. Click the **menu icon (···)** in the top-right corner
+2. Select **Settings** from the dropdown menu
+3. Click **Export PEM** to download your private key
+
+<div class="wallet-steps">
+  <figure>
+    <img src="/wallets/icp1.png" alt="Plug Wallet main interface" width="300" />
+    <figcaption>Figure 1: Plug Wallet home screen</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/icp2.png" alt="Plug Wallet menu expanded showing Settings option" width="300" />
+    <figcaption>Figure 2: Access Settings from the menu (···)</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/icp3.png" alt="Settings page with Export PEM button highlighted" width="300" />
+    <figcaption>Figure 3: Export PEM option in Settings</figcaption>
+  </figure>
+</div>
+
+:::caution[Secure your PEM file]
+Never commit `identity.pem` to version control. Add it to `.gitignore` immediately. Anyone with access to this file has full signing authority over your identity.
+:::
+---
+
+  </TabItem>
+  <TabItem label="SVM">
+
+**Export from Phantom**
+
+To use your Phantom wallet, you must export the private key manually.
+
+**Export steps:**
+
+1. Click your **account icon** to open the sidebar
+2. Click the **settings icon** (gear) at the bottom of the sidebar
+3. Select your account, then choose **Edit Account**
+4. Click **Show Private Key** and authenticate
+5. Copy the base58-encoded private key string
+
+<div class="wallet-steps">
+  <figure>
+    <img src="/wallets/svm1.png" alt="Phantom wallet main interface showing account balance" width="300" />
+    <figcaption>Figure 1: Phantom wallet home screen</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/svm2.png" alt="Phantom sidebar with settings icon at bottom" width="300" />
+    <figcaption>Figure 2: Settings icon in the sidebar</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/svm3.png" alt="Edit Account screen showing Show Private Key option" width="300" />
+    <figcaption>Figure 3: Show Private Key in Edit Account</figcaption>
+  </figure>
+</div>
+
+Add the base58 string to your `.env` file:
+
+```bash
+SOLANA_PRIVATE_KEY=<base58-encoded-private-key>
+```
+
+In your application, decode the key and create a signer:
+
+```js
+import bs58 from 'bs58'
+import { createKeyPairSignerFromBytes } from '@solana/signers'
+
+const keyBytes = bs58.decode(process.env.SOLANA_PRIVATE_KEY)
+const signer = await createKeyPairSignerFromBytes(keyBytes)
+```
+
+:::caution[Keep keys server-side only]
+Never expose private keys in client-side browser code.
+:::
+
+  </TabItem>
+  <TabItem label="EVM">
+
+
+**Export from MetaMask**
+
+To use your MetaMask wallet, export the private key from the extension.
+
+**Export steps:**
+
+1. Open MetaMask and click the **menu icon (···)** next to your account name
+2. Select **Account details**
+3. Click **Show private key**
+4. Authenticate and copy the hexadecimal private key
+
+<div class="wallet-steps">
+  <figure>
+    <img src="/wallets/evm1.png" alt="MetaMask home screen showing account balance" width="300" />
+    <figcaption>Figure 1: MetaMask home screen</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/evm2.png" alt="Account menu with Account details option highlighted" width="300" />
+    <figcaption>Figure 2: Access Account details from the menu</figcaption>
+  </figure>
+  <figure>
+    <img src="/wallets/evm3.png" alt="Account details page with Show private key button" width="300" />
+    <figcaption>Figure 3: Show private key in Account details</figcaption>
+  </figure>
+</div>
+
+Add the private key to your `.env` file:
+
+```bash
+EVM_PRIVATE_KEY=0x...
+```
+
+In your application, create a signer using `viem`:
+
+```js
+import { privateKeyToAccount } from 'viem/accounts'
+
+const key = process.env.EVM_PRIVATE_KEY
+const signer = privateKeyToAccount(key.startsWith('0x') ? key : `0x${key}`)
+```
+
+:::caution[Server-side only]
+Never hard-code private keys in source files or expose them in client-side code.
+:::
+
+  </TabItem>
+</Tabs>
+
+## Install Packages
+
+<Tabs>
+  <TabItem label="ICP">
+
+```bash
+npm install @canister-software/x402-icp @x402/core @x402/fetch dotenv
+```
+
+| Package | Purpose |
+|---|---|
+| `@canister-software/x402-icp` | ICP-specific signer and scheme registration |
+| `@x402/core` | Core x402 client |
+| `@x402/fetch` | Payment-aware fetch wrapper |
+| `dotenv` | Load environment variables from `.env` |
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```bash
+npm install @x402/svm @solana/signers bs58 @x402/core @x402/fetch dotenv
+```
+
+| Package | Purpose |
+|---|---|
+| `@x402/svm` | Solana signer and scheme registration |
+| `@solana/signers` | `createKeyPairSignerFromBytes` |
+| `bs58` | Decode the base58 private key exported from Phantom |
+| `@x402/core` | Core x402 client |
+| `@x402/fetch` | Payment-aware fetch wrapper |
+| `dotenv` | Load environment variables from `.env` |
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```bash
+npm install @x402/evm viem @x402/core @x402/fetch dotenv
+```
+
+| Package | Purpose |
+|---|---|
+| `@x402/evm` | EVM signer and scheme registration |
+| `viem` | `privateKeyToAccount` and EVM account utilities |
+| `@x402/core` | Core x402 client |
+| `@x402/fetch` | Payment-aware fetch wrapper |
+| `dotenv` | Load environment variables from `.env` |
+
+  </TabItem>
+</Tabs>
+
+## Configure Environment
+
+Create a `.env` file in your project root:
+
+<Tabs>
+  <TabItem label="ICP">
+
+```bash
+PEM_PATH=./identity.pem
+RESOURCE_SERVER_URL=https://facilitator.canister.software
+ENDPOINT=/api/data
+```
+
+| Variable | Description |
+|---|---|
+| `PEM_PATH` | Path to your ICP identity PEM file |
+| `RESOURCE_SERVER_URL` | The Consensus facilitator URL that routes your request |
+| `ENDPOINT` | The API route you want to call through the network |
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```bash
+SOLANA_PRIVATE_KEY=<base58-private-key>
+RESOURCE_SERVER_URL=https://facilitator.canister.software
+ENDPOINT=/api/data
+```
+
+| Variable | Description |
+|---|---|
+| `SOLANA_PRIVATE_KEY` | Your base58-encoded Solana private key exported from Phantom |
+| `RESOURCE_SERVER_URL` | The Consensus facilitator URL that routes your request |
+| `ENDPOINT` | The API route you want to call through the network |
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```bash
+EVM_PRIVATE_KEY=0x...
+RESOURCE_SERVER_URL=https://facilitator.canister.software
+ENDPOINT=/api/data
+```
+
+| Variable | Description |
+|---|---|
+| `EVM_PRIVATE_KEY` | Your EVM private key (hex, `0x`-prefixed) exported from MetaMask |
+| `RESOURCE_SERVER_URL` | The Consensus facilitator URL that routes your request |
+| `ENDPOINT` | The API route you want to call through the network |
+
+  </TabItem>
+</Tabs>
+
+:::tip
+Add `.env` and `identity.pem` to your `.gitignore` before your first commit.
+:::
+
+## Building the Client
+
+Create a file `client.js` and add each step below.
+
+### Create the signer
+
+<Tabs>
+  <TabItem label="ICP">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { pemToSigner } from '@canister-software/x402-icp/client'
+
+const PEM_PATH = process.env.PEM_PATH || './identity.pem'
+
+const signer = await pemToSigner(PEM_PATH)
+console.log(`Signer principal: ${signer.principal}`)
+```
+
+`pemToSigner` reads your PEM file and returns a signer object. The principal logged on startup confirms the correct identity is loaded.
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import bs58 from 'bs58'
+import { createKeyPairSignerFromBytes } from '@solana/signers'
+
+const keyBytes = bs58.decode(process.env.SOLANA_PRIVATE_KEY)
+const signer = await createKeyPairSignerFromBytes(keyBytes)
+console.log(`Signer address: ${signer.address}`)
+```
+
+Phantom exports your private key as a base58 string. `bs58.decode` converts it back to the raw byte array that `createKeyPairSignerFromBytes` expects.
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { privateKeyToAccount } from 'viem/accounts'
+
+const key = process.env.EVM_PRIVATE_KEY
+const signer = privateKeyToAccount(key.startsWith('0x') ? key : `0x${key}`)
+console.log(`Signer address: ${signer.address}`)
+```
+
+`privateKeyToAccount` creates a local account from the raw hex key. The `0x` prefix guard handles keys exported with or without it.
+
+  </TabItem>
+</Tabs>
+
+### Create the x402 client and register the scheme
+
+<Tabs>
+  <TabItem label="ICP">
+
+```js
+import { x402Client } from '@x402/core/client'
+import { registerExactIcpScheme } from '@canister-software/x402-icp/client'
+
+const client = new x402Client()
+registerExactIcpScheme(client, { signer })
+```
+
+`registerExactIcpScheme` teaches the client how to respond to ICP-based payment challenges. When the server returns a `402 Payment Required`, the client constructs and signs a valid ICP payment authorisation using your identity.
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```js
+import { x402Client } from '@x402/core/client'
+import { registerExactSvmScheme } from '@x402/svm/exact/client'
+
+const client = new x402Client()
+registerExactSvmScheme(client, { signer })
+```
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```js
+import { x402Client } from '@x402/core/client'
+import { registerExactEvmScheme } from '@x402/evm/exact/client'
+
+const client = new x402Client()
+registerExactEvmScheme(client, { signer })
+```
+
+  </TabItem>
+</Tabs>
+
+### Wrap fetch with payment
+
+This step is identical for all networks.
+
+```js
+import { wrapFetchWithPayment } from '@x402/fetch'
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, client)
+```
+
+`wrapFetchWithPayment` returns a drop-in replacement for the standard `fetch` function. Swap `fetch` for `fetchWithPayment` anywhere in your code and the x402 payment flow is handled transparently — no manual payment logic required.
+
+### Make requests
+
+This step is identical for all networks.
+
+```js
+const SERVER_URL = process.env.RESOURCE_SERVER_URL || 'https://facilitator.canister.software'
+const ENDPOINT = process.env.ENDPOINT || '/api/data'
+
+const response = await fetchWithPayment(`${SERVER_URL}${ENDPOINT}`)
+const body = await response.json()
+console.log(JSON.stringify(body, null, 2))
+```
+
+When `fetchWithPayment` receives a `402 Payment Required` it automatically:
+
+1. Reads the payment details from the response
+2. Signs the payment authorisation using your signer
+3. Retries the original request with the payment attached
+4. Returns the final response to your code
+
+Your application sees only the successful response — the payment round-trip is invisible.
+
+## Complete Client
+
+<Tabs>
+  <TabItem label="ICP">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { x402Client } from '@x402/core/client'
+import { wrapFetchWithPayment } from '@x402/fetch'
+import { registerExactIcpScheme, pemToSigner } from '@canister-software/x402-icp/client'
+
+const PEM_PATH = process.env.PEM_PATH || './identity.pem'
+const SERVER_URL = process.env.RESOURCE_SERVER_URL || 'https://facilitator.canister.software'
+const ENDPOINT = process.env.ENDPOINT || '/api/data'
+
+async function main() {
+  // 1. Create signer from PEM
+  const signer = await pemToSigner(PEM_PATH)
+  console.log(`Signer principal: ${signer.principal}`)
+
+  // 2. Create x402 client and register ICP scheme
+  const client = new x402Client()
+  registerExactIcpScheme(client, { signer })
+
+  // 3. Wrap fetch with payment handling
+  const fetchWithPayment = wrapFetchWithPayment(fetch, client)
+
+  // 4. Make the request — x402 handles 402 → sign → retry automatically
+  const response = await fetchWithPayment(`${SERVER_URL}${ENDPOINT}`)
+  const body = await response.json()
+  console.log(JSON.stringify(body, null, 2))
+}
+
+main()
+```
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import bs58 from 'bs58'
+import { createKeyPairSignerFromBytes } from '@solana/signers'
+import { x402Client } from '@x402/core/client'
+import { wrapFetchWithPayment } from '@x402/fetch'
+import { registerExactSvmScheme } from '@x402/svm/exact/client'
+
+const SERVER_URL = process.env.RESOURCE_SERVER_URL || 'https://facilitator.canister.software'
+const ENDPOINT = process.env.ENDPOINT || '/api/data'
+
+async function main() {
+  // 1. Decode base58 key exported from Phantom and create signer
+  const keyBytes = bs58.decode(process.env.SOLANA_PRIVATE_KEY)
+  const signer = await createKeyPairSignerFromBytes(keyBytes)
+  console.log(`Signer address: ${signer.address}`)
+
+  // 2. Create x402 client and register SVM scheme
+  const client = new x402Client()
+  registerExactSvmScheme(client, { signer })
+
+  // 3. Wrap fetch with payment handling
+  const fetchWithPayment = wrapFetchWithPayment(fetch, client)
+
+  // 4. Make the request — x402 handles 402 → sign → retry automatically
+  const response = await fetchWithPayment(`${SERVER_URL}${ENDPOINT}`)
+  const body = await response.json()
+  console.log(JSON.stringify(body, null, 2))
+}
+
+main()
+```
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```js
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { privateKeyToAccount } from 'viem/accounts'
+import { x402Client } from '@x402/core/client'
+import { wrapFetchWithPayment } from '@x402/fetch'
+import { registerExactEvmScheme } from '@x402/evm/exact/client'
+
+const SERVER_URL = process.env.RESOURCE_SERVER_URL || 'https://facilitator.canister.software'
+const ENDPOINT = process.env.ENDPOINT || '/api/data'
+
+async function main() {
+  // 1. Create signer from private key
+  const key = process.env.EVM_PRIVATE_KEY
+  const signer = privateKeyToAccount(key.startsWith('0x') ? key : `0x${key}`)
+  console.log(`Signer address: ${signer.address}`)
+
+  // 2. Create x402 client and register EVM scheme
+  const client = new x402Client()
+  registerExactEvmScheme(client, { signer })
+
+  // 3. Wrap fetch with payment handling
+  const fetchWithPayment = wrapFetchWithPayment(fetch, client)
+
+  // 4. Make the request — x402 handles 402 → sign → retry automatically
+  const response = await fetchWithPayment(`${SERVER_URL}${ENDPOINT}`)
+  const body = await response.json()
+  console.log(JSON.stringify(body, null, 2))
+}
+
+main()
+```
+
+  </TabItem>
+</Tabs>
+
+## Run It
+
+```bash
+node client.js
+```
+
+<Tabs>
+  <TabItem label="ICP">
+
+```
+Signer principal: xxxxx-xxxxx-xxxxx-xxxxx-cai
+{
+  // response from the endpoint
+}
+```
+
+  </TabItem>
+  <TabItem label="SVM">
+
+```
+Signer address: <base58-public-key>
+{
+  // response from the endpoint
+}
+```
+
+  </TabItem>
+  <TabItem label="EVM">
+
+```
+Signer address: 0x...
+{
+  // response from the endpoint
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Next Steps
+
+- [Installing a Consensus Node](/quickstart/nodes/) — run your own node in the network
+- [Consensus API](/protocol/api/) — full reference for all available routes
+- [Routing a Request](/guides/proxy/) — a deeper walkthrough of the full request lifecycle
