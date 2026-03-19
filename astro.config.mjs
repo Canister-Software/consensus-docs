@@ -46,6 +46,10 @@ export default defineConfig({
 					autogenerate: {directory:'x402proxy'},
 				},
 				{
+					label: 'Facilitator',
+					autogenerate: {directory:'facilitator'},
+				},
+				{
 					label: 'Guides',
 					autogenerate: {directory:'guides'},
 				},
