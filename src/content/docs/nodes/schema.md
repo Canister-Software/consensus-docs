@@ -1,6 +1,8 @@
 ---
 title: Node API
 description: Introduce Node interface
+sidebar:
+  order: 3
 ---
 
 <img

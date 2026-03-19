@@ -1,6 +1,8 @@
 ---
 title: Responsiblities
 description: Introduce Node responsiblities
+sidebar:
+  order: 2
 ---
 
 <img

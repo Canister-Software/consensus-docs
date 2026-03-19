@@ -1,6 +1,8 @@
 ---
 title: Setup
 description: Setting up Consensus cli
+sidebar:
+  order: 1
 ---
 <img
 src="/construction.png"

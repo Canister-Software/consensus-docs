@@ -1,6 +1,8 @@
 ---
 title: Package
 description: Installing cli package
+sidebar:
+  order: 2
 ---
 
 

@@ -1,6 +1,8 @@
 ---
 title: Setting up a node
 description: How to join network
+sidebar:
+  order: 2
 ---
 
 <img

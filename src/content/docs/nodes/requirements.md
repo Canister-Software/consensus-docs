@@ -1,6 +1,8 @@
 ---
 title: Requirements
 description: Introduce Node requirements 
+sidebar:
+  order: 1
 ---
 
 <img
