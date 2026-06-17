@@ -13,8 +13,9 @@ This page is the **canonical reference** that every Consensus repository syncs a
 | [`consensus-client`](https://github.com/Demali-876/consensus-client) | `@canister-software/consensus-cli` — TypeScript SDK + TUI/CLI used to interact with the network. |
 | [`consensus-node`](https://github.com/Demali-876/consensus-node) | Bun worker-node runtime that registers with the orchestrator and serves proxied requests. |
 | [`consensus-docs`](https://github.com/canister-software/consensus-docs) | This site (Astro Starlight). Hosts this canonical architecture/contracts reference. |
+| [`consensus-facilitator`](https://github.com/Demali-876/consensus-facilitator) | x402 payment facilitator — verifies and settles payments across ICP, EVM (mainnet + Base + testnets), and SVM (mainnet + devnet). Backs the orchestrator's `FACILITATOR_URL`. |
 
-> The `instance/` directory inside the `consensus` monorepo is a **stale reference implementation**, not the node — the node is `consensus-node`. A separate `consensus-facilitator` repo hosts the x402 facilitator and is out of scope for this page.
+> The `instance/` directory inside the `consensus` monorepo is a **stale reference implementation**, not the node — the node is `consensus-node`.
 
 ## Architecture
 
@@ -59,6 +60,10 @@ The new primitive for the direct data plane. Shared across `consensus` (issuer),
 
 - **Signing:** Ed25519. The orchestrator holds the signing key; nodes learn its public key at registration and verify against it.
 - **Claims:** `{ node_id, dedupe_key | tunnel_id, paid, exp, jti }`. Node verifies signature, `exp`, that `node_id` is itself, that the request hashes to `dedupe_key`, and that `jti` is unused (replay protection).
+
+### x402 facilitator
+
+`consensus` (and `consensus-client`, which constructs payments) ⇄ `consensus-facilitator`. The facilitator verifies and settles x402 payments; the orchestrator reaches it via `FACILITATOR_URL`. The scheme/network identifiers must match across all three — EVM (`eip155:*`), SVM (`solana:*`), and ICP (`icp:*`) — as registered on the server's `x402ResourceServer` and accepted by the facilitator.
 
 ## Keeping repos in sync
 

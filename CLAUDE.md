@@ -30,6 +30,7 @@ Part of a four-repo set — keep them in sync via the canonical page above:
 - [`consensus`](https://github.com/Demali-876/consensus) — orchestrator / proxy (`server/`).
 - [`consensus-client`](https://github.com/Demali-876/consensus-client) — `@canister-software/consensus-cli` (SDK + TUI/CLI).
 - [`consensus-node`](https://github.com/Demali-876/consensus-node) — Bun worker-node runtime.
+- [`consensus-facilitator`](https://github.com/Demali-876/consensus-facilitator) — x402 payment facilitator.
 - **`consensus-docs`** (this repo) — the docs site.
 
 ## Conventions
