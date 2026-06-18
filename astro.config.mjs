@@ -30,7 +30,6 @@ export default defineConfig({
 					items: [
 						{ label: 'What is Consensus?', slug: 'protocol/info' },
 						{ label: 'Core concepts', slug: 'protocol/concepts' },
-						{ label: 'Architecture & contracts', slug: 'protocol/architecture' },
 						{ label: 'Consensus API', slug: 'protocol/api' },
 					],
 				},
