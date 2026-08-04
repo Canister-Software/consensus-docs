@@ -17,6 +17,37 @@
     a{color:inherit}
     @keyframes cs-pulse{0%{box-shadow:0 0 0 0 rgba(2,113,235,0.55)}70%{box-shadow:0 0 0 7px rgba(2,113,235,0)}100%{box-shadow:0 0 0 0 rgba(2,113,235,0)}}
     @keyframes cs-spin{to{transform:rotate(360deg)}}
+
+    /* ── Responsive: tablets & phones ── */
+    @media (max-width:820px){
+      /* headline must wrap instead of forcing horizontal scroll */
+      h1 [style*="white-space:nowrap"]{white-space:normal !important}
+      /* stack every multi-column grid */
+      [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr !important}
+      [style*="grid-template-columns:1.5fr 1fr"]{grid-template-columns:1fr !important}
+      [style*="grid-template-columns:0.9fr 1.1fr"]{grid-template-columns:1fr !important;gap:20px !important}
+      [style*="grid-template-columns:1.6fr 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr !important}
+      /* in-page nav anchors add clutter on small screens */
+      nav [style*="margin-left:14px"]{display:none !important}
+      nav > div[style*="margin-left:auto"]{display:none !important}
+      #menu-btn{display:flex !important}
+      nav[style*="padding:13px 28px"]{padding:12px 18px !important}
+      /* tighten oversized section padding */
+      [style*="padding:118px 28px 96px"]{padding:84px 22px 56px !important}
+      [style*="padding:104px 28px 40px"]{padding:68px 22px 24px !important}
+      [style*="padding:96px 28px"]{padding:68px 22px !important}
+      [style*="padding:80px 28px"]{padding:60px 22px !important}
+      [style*="padding:110px 28px"]{padding:76px 22px !important}
+    }
+    /* phones: footer to a single column */
+    @media (max-width:520px){
+      [style*="grid-template-columns:1.6fr 1fr 1fr 1fr"]{grid-template-columns:1fr !important}
+    }
+    /* desktop: hamburger + dropdown never show */
+    @media (min-width:821px){
+      #menu-btn{display:none !important}
+      #mobile-menu{display:none !important}
+    }
   </style>
 </head>
 <body>
@@ -32,13 +63,24 @@
       </a>
       <div style="display:flex;align-items:center;gap:24px;margin-left:14px;font-size:14px;color:rgba(255,255,255,0.62)">
         <a href="#build" data-navlink="build" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Build</a>
-        <a href="#node" data-navlink="node" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Run a node</a>
+        <a href="/guides/node/" data-navlink="node" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Run a node</a>
       </div>
       <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
         <a href="https://github.com/demali-876/consensus" style="text-decoration:none;font-size:14px;color:rgba(255,255,255,0.62)">GitHub</a>
         <a href="/quickstart/request/" style="text-decoration:none;font-size:14px;font-weight:500;color:#000;background:#fff;padding:8px 16px;border-radius:9px">Read the docs</a>
       </div>
+      <button id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" style="display:none;margin-left:auto;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:42px;height:42px;background:transparent;border:0;cursor:pointer;padding:0">
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s ease,opacity .2s ease"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s ease,opacity .2s ease"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s ease,opacity .2s ease"></span>
+      </button>
     </nav>
+    <div id="mobile-menu" style="display:none;flex-direction:column;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,0.07)">
+      <a href="#build" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">Build</a>
+      <a href="/guides/node/" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">Run a node</a>
+      <a href="https://github.com/demali-876/consensus" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">GitHub</a>
+      <a href="/quickstart/request/" style="text-decoration:none;color:#000;background:#fff;font-weight:600;font-size:16px;text-align:center;padding:14px 24px;margin:14px 24px 18px;border-radius:10px">Read the docs</a>
+    </div>
   </header>
 
   <!-- ============ HERO ============ -->
@@ -79,17 +121,17 @@
       <div style="background:transparent">
         <iframe src="/opentui/tunnel.html" loading="lazy" title="Live TUNNELS terminal" style="width:100%;height:620px;border:0;border-radius:10px;display:block;background:#000"></iframe>
       </div>
-      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:22px;align-items:start">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:14px;align-items:start">
         <div style="border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;background:#060607">
           <pre style="margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.86)"><code><span style="color:rgba(255,255,255,0.3)">$</span> consensus tunnel http localhost:3000
 
 <span style="color:#3ddc84">✓</span> Tunnel online
   <span style="color:rgba(255,255,255,0.62)">https://amber-otter.consensus.canister.software</span> <span style="color:rgba(255,255,255,0.3)">→</span> localhost:3000
-  <span style="color:rgba(255,255,255,0.38);font-style:italic"># press ctrl+c to close</span></code></pre>
+  </code></pre>
         </div>
         <div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">One command</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">One command puts a local port on a public HTTPS URL. No config files, no DNS panels, no signup, and every request streams back to the terminal in real time.</p>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">One command to Live</div>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Put a local port or device on a public HTTPS URL in seconds. No signup, monitor every request in real time.</p>
         </div>
       </div>
     </div>
@@ -99,15 +141,15 @@
       <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap">
         <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.32)">02</span>
         <h3 style="margin:0;font-size:clamp(19px,2.3vw,27px);font-weight:600;letter-spacing:-0.01em;line-height:1.12">
-          <span style="color:#fff">PROXIES</span><span style="color:rgba(255,255,255,0.4)">: Drop-in SDK wrap. fetch(). Ship.</span>
+          <span style="color:#fff">PROXIES</span><span style="color:rgba(255,255,255,0.4)">: Wrap fetch(). Ship secured.</span>
         </h3>
       </div>
       <div style="background:transparent">
         <iframe src="/opentui/proxy.html" loading="lazy" title="Live PROXIES terminal" style="width:100%;height:620px;border:0;border-radius:10px;display:block;background:#000"></iframe>
       </div>
-      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:22px;align-items:start">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:14px;align-items:start">
         <div style="border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;background:#060607">
-          <pre style="margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.86)"><code><span style="color:rgba(255,255,255,0.45)">import</span> &#123; ProxyClient &#125; <span style="color:rgba(255,255,255,0.45)">from</span> <span style="color:rgba(255,255,255,0.62)">'@canister-software/consensus-sdk'</span>
+          <pre style="margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.86)"><code><span style="color:rgba(255,255,255,0.45)">import</span> &#123; ProxyClient &#125; <span style="color:rgba(255,255,255,0.45)">from</span> <span style="color:rgba(255,255,255,0.62)">'@canister-software/consensus-cli'</span>
 
 <span style="color:rgba(255,255,255,0.38);font-style:italic">// intercepts outbound HTTP transparently</span>
 <span style="color:rgba(255,255,255,0.45)">const</span> fetch = ProxyClient.wrap(globalThis.fetch)
@@ -120,7 +162,7 @@
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Drop-in SDK</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Wrap fetch() once and every outbound call routes through Consensus: deduplicated, cached, and metered per request. Existing route handlers stay untouched.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Wrap fetch() once and every outbound call routes through Consensus: protected, deduplicated, cached, and metered per request. Existing route handlers stay untouched.</p>
         </div>
       </div>
     </div>
@@ -136,7 +178,7 @@
       <div style="background:transparent">
         <iframe src="/opentui/nodes.html" loading="lazy" title="Live STABLE IPs terminal" style="width:100%;height:620px;border:0;border-radius:10px;display:block;background:#000"></iframe>
       </div>
-      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:22px;align-items:start">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:14px;align-items:start">
         <div style="border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;background:#060607">
           <pre style="margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.86)"><code><span style="color:rgba(255,255,255,0.3)">$</span> consensus ip list --region us-east
 NODE ID   DOMAIN                                     REGION   SCORE
@@ -147,7 +189,7 @@ NODE ID   DOMAIN                                     REGION   SCORE
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Pin the IP</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Lease a verified, high-score node and pin every tunnel, proxy, and socket to one static IP. Whitelist once, reconnect automatically, stop fighting dynamic firewalls.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Lease a verified, performant node and pin every tunnel, proxy, and socket to one static IP. Whitelist once, reconnect automatically, stop fighting dynamic firewalls.</p>
         </div>
       </div>
     </div>
@@ -163,7 +205,7 @@ NODE ID   DOMAIN                                     REGION   SCORE
       <div style="background:transparent">
         <iframe src="/opentui/websocket.html" loading="lazy" title="Live WEBSOCKETS terminal" style="width:100%;height:620px;border:0;border-radius:10px;display:block;background:#000"></iframe>
       </div>
-      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:22px;align-items:start">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:28px;margin-top:14px;align-items:start">
         <div style="border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;background:#060607">
           <pre style="margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.86)"><code><span style="color:rgba(255,255,255,0.45)">import</span> &#123; SocketClient &#125; <span style="color:rgba(255,255,255,0.45)">from</span> <span style="color:rgba(255,255,255,0.62)">'@canister-software/consensus-sdk'</span>
 
@@ -179,7 +221,7 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Prepaid &amp; metered</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Prepay time, data, or both. Each persistent session is metered by the protocol and closed cleanly once the budget runs out. No accounts, no state to babysit.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Prepay time, data, or both. Each persistent session is metered by the protocol and closed cleanly once the budget runs out. No accounts, no state.</p>
         </div>
       </div>
     </div>
@@ -193,78 +235,99 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
         <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.42)">one facilitator · the <span style="color:rgba(255,255,255,0.7)">exact</span> scheme</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-        <div data-reveal style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><span style="font-size:17px;font-weight:600">EVM</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px">Base Sepolia</span></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:rgba(255,255,255,0.5);word-break:break-all;line-height:1.6">eip155:84532</div>
+        <div data-reveal style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;display:flex;align-items:center;gap:16px">
+          <span style="width:46px;height:46px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center"><img src="/chains/ethereum.png" alt="Ethereum" style="max-width:100%;max-height:100%;display:block" /></span>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <span style="font-size:17px;font-weight:600">Ethereum</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px;align-self:flex-start">Mainnet</span>
+          </div>
         </div>
-        <div data-reveal data-reveal-delay="90" style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><span style="font-size:17px;font-weight:600">Solana</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px">Devnet</span></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:rgba(255,255,255,0.5);word-break:break-all;line-height:1.6">solana:EtWTRABZ…66VU2xqa1</div>
+        <div data-reveal data-reveal-delay="90" style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;display:flex;align-items:center;gap:16px">
+          <span style="width:46px;height:46px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center"><img src="/chains/solana.svg" alt="Solana" style="max-width:100%;max-height:100%;display:block" /></span>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <span style="font-size:17px;font-weight:600">Solana</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px;align-self:flex-start">Mainnet</span>
+          </div>
         </div>
-        <div data-reveal data-reveal-delay="180" style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><span style="font-size:17px;font-weight:600">ICP</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px">TESTICP</span></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:rgba(255,255,255,0.5);word-break:break-all;line-height:1.6">icp:1:xafvr-biaaa…aql5q-cai</div>
+        <div data-reveal data-reveal-delay="180" style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;display:flex;align-items:center;gap:16px">
+          <span style="width:46px;height:46px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center"><img src="/chains/icp.png" alt="Internet Computer" style="max-width:100%;max-height:100%;display:block" /></span>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <span style="font-size:17px;font-weight:600">Internet Computer</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px;align-self:flex-start">Mainnet</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ RUN A NODE ============ -->
+  <!-- ============ NO-FUD · TECHNICAL ASSURANCES ============ -->
+  <section style="border-top:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.012)">
+    <div style="max-width:1200px;margin:0 auto;padding:96px 28px">
+      <div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:56px;align-items:end;margin-bottom:56px">
+        <div>
+          <h2 data-reveal style="margin:0;font-size:clamp(28px,3.6vw,42px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:20ch">Pure application-level routing with a Cache.</h2>
+        </div>
+        <p data-reveal data-reveal-delay="90" style="margin:0;font-size:16px;line-height:1.65;color:rgba(255,255,255,0.55);max-width:54ch">Wire native proxy handlers directly into your JavaScript/TypeScript processes using clean dependency injection, and manage parameters locally via secure profiles.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden">
+
+        <div data-reveal style="background:#000;padding:34px 30px;display:flex;flex-direction:column;gap:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Integration</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.25)">01</span>
+          </div>
+          <div style="font-size:23px;font-weight:600;letter-spacing:-0.015em;color:#fff;line-height:1.15;margin-bottom:14px">Drop-in SDK, or dependency injection</div>
+          <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Two ways to wire into a codebase. Import the SDK and call <span style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.82)">ProxyClient</span> or <span style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.82)">SocketClient</span> as middleware directly in application code, or hand the protocol native handlers through dependency injection. Both paths run at the application level and never decrypt HTTPS, so existing request logic and TLS stay exactly as written.</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="90" style="background:#000;padding:34px 30px;display:flex;flex-direction:column;gap:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Configuration</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.25)">02</span>
+          </div>
+          <div style="font-size:23px;font-weight:600;letter-spacing:-0.015em;color:#fff;line-height:1.15;margin-bottom:14px">No accounts. Local profiles.</div>
+          <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Nothing to sign up for and no keys to rotate. Configuration lives in local <span style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.82)">profiles</span> on the machine. Create named profiles, customize defaults and spend limits per project, and switch between them instantly, with nothing held on a remote server.</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="180" style="background:#000;padding:34px 30px;display:flex;flex-direction:column;gap:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Security</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.25)">03</span>
+          </div>
+          <div style="font-size:23px;font-weight:600;letter-spacing:-0.015em;color:#fff;line-height:1.15;margin-bottom:14px">Vetted nodes, encrypted channels</div>
+          <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Every node earns its place. Before serving any traffic a node clears a performance benchmark, and a heartbeat every five minutes keeps only healthy, responsive nodes in rotation. Traffic between the runtime and each node travels over <span style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.82)">encrypted</span> channels, so data in transit stays protected across every hop.</p>
+        </div>
+
+      </div>
+
+      <div data-reveal style="margin-top:40px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Built for JavaScript &amp; TypeScript runtimes</span>
+        <span style="display:inline-flex;align-items:center;gap:14px">
+          <img src="/JavaScript-logo.png" alt="JavaScript" width="30" height="30" style="display:block" />
+          <img src="/typescript_logo.webp" alt="TypeScript" width="30" height="30" style="display:block" />
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM ANCHOR CTA (final loop) ============ -->
   <section id="node" style="position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,0.07)">
     <img src="/logo-light.svg" alt="" aria-hidden="true" style="position:absolute;bottom:-220px;left:-180px;width:560px;height:560px;opacity:0.045;animation:cs-spin 160s linear infinite reverse;pointer-events:none" />
-    <div style="position:relative;max-width:1200px;margin:0 auto;padding:104px 28px">
-      <div data-reveal style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:20px">
-        <span style="width:6px;height:6px;border-radius:50%;background:#0271EB;animation:cs-pulse 2.4s infinite"></span>Participate · network is live
-      </div>
-      <h2 data-reveal data-reveal-delay="60" style="margin:0 0 18px;font-size:clamp(30px,4.4vw,54px);line-height:1.02;letter-spacing:-0.03em;font-weight:600;max-width:16ch">Run a node. Earn from the network.</h2>
-      <p data-reveal data-reveal-delay="120" style="margin:0 0 52px;font-size:clamp(16px,1.7vw,19px);line-height:1.6;color:rgba(255,255,255,0.6);max-width:62ch">Operators are paid directly for the work they do, and rewards are <span style="color:rgba(255,255,255,0.9)">100% fair and equally distributed</span>. No staking tiers, no privileged validators. Pass the benchmark, send your heartbeat, serve traffic.</p>
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.05) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 70% 120% at 50% 50%,#000 20%,transparent 72%);mask-image:radial-gradient(ellipse 70% 120% at 50% 50%,#000 20%,transparent 72%);pointer-events:none"></div>
+    <div style="position:relative;max-width:1200px;margin:0 auto;padding:110px 28px;display:flex;flex-direction:column;align-items:center;text-align:center">
+      <div data-reveal style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:22px">Built for speed · shipped via the CLI</div>
+      <h2 data-reveal data-reveal-delay="60" style="margin:0 0 34px;font-size:clamp(32px,4.6vw,58px);line-height:1;letter-spacing:-0.035em;font-weight:600;color:#fff;max-width:18ch">One command. You're on the network.</h2>
 
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
-        <div data-reveal style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:26px;background:rgba(255,255,255,0.018)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 01</div>
-          <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve tunnels</h3>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Forward HTTP/TCP traffic for tunnels opened through your node and earn for the bytes you carry.</p>
-        </div>
-        <div data-reveal data-reveal-delay="70" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:26px;background:rgba(255,255,255,0.018)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 02</div>
-          <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve the proxy</h3>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Execute deduplicated HTTP for the network and collect the per-request fee on every call you handle.</p>
-        </div>
-        <div data-reveal data-reveal-delay="140" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:26px;background:rgba(255,255,255,0.018)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 03</div>
-          <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Lease your IP</h3>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Offer a verified, long-lived IP into the shared pool and earn when apps route through it for whitelisting.</p>
-        </div>
-        <div data-reveal data-reveal-delay="210" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:26px;background:rgba(255,255,255,0.018)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 04</div>
-          <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve WebSockets</h3>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Host prepaid, metered sessions. Clients pay up front; you earn for the time and data you serve.</p>
-        </div>
+      <div data-reveal data-reveal-delay="140" style="display:inline-flex;align-items:center;gap:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);border-radius:12px;overflow:hidden;font-family:'JetBrains Mono',monospace;max-width:100%">
+        <span style="padding:16px 12px 16px 20px;color:rgba(255,255,255,0.32);font-size:15px;user-select:none">$</span>
+        <code style="padding:16px 20px 16px 0;font-size:15px;color:#fff;white-space:nowrap;overflow-x:auto">npm i -g @canister-software/consensus-cli</code>
+        <button data-copy="npm i -g @canister-software/consensus-cli" style="align-self:stretch;display:inline-flex;align-items:center;gap:7px;border:0;border-left:1px solid rgba(255,255,255,0.14);background:transparent;color:rgba(255,255,255,0.6);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:0 20px;cursor:pointer;transition:background .2s ease,color .2s ease" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.6)'">
+          <span data-copy-label>Copy</span>
+        </button>
       </div>
 
-      <!-- spec strip -->
-      <div data-reveal style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(4,1fr);margin-top:16px">
-        <div style="padding:24px;border-right:1px solid rgba(255,255,255,0.08)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Join price</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">min($100 + n×$50, $1000)</div>
-        </div>
-        <div style="padding:24px;border-right:1px solid rgba(255,255,255,0.08)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Benchmark</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">score ≥ 60 / 100</div>
-        </div>
-        <div style="padding:24px;border-right:1px solid rgba(255,255,255,0.08)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Heartbeat</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">every 5 min</div>
-        </div>
-        <div style="padding:24px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Provisioned</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">&lt;id&gt;.consensus…</div>
-        </div>
-      </div>
-
-      <div data-reveal style="margin-top:36px;display:flex;flex-wrap:wrap;gap:14px;align-items:center">
-        <a href="/guides/node/" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#000;background:#fff;padding:13px 22px;border-radius:11px;transition:transform .2s ease,box-shadow .2s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(255,255,255,0.14)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Read the node guide <span style="font-family:'JetBrains Mono',monospace">→</span></a>
-      </div>
+      <p data-reveal data-reveal-delay="220" style="margin:32px 0 0;font-size:16px;line-height:1.6;color:rgba(255,255,255,0.55)">Looking to host infrastructure? <a href="/guides/node/" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:1px">Join the network as a node operator →</a></p>
     </div>
   </section>
 
@@ -290,9 +353,8 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px">Network</div>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
-          <a href="#node" style="text-decoration:none">Run a node</a>
+          <a href="/guides/node/" style="text-decoration:none">Run a node</a>
           <a href="/facilitator/overview/" style="text-decoration:none">Facilitator</a>
-          <a href="/x402proxy/x402/" style="text-decoration:none">x402 Proxy</a>
         </div>
       </div>
       <div>
@@ -312,6 +374,29 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
 </div>
 
 <script is:inline>
+  // ── Mobile menu toggle ─────────────────────────────────────
+  (function () {
+    const btn = document.getElementById('menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (!btn || !menu) return;
+    const bars = btn.querySelectorAll('span');
+    let open = false;
+    const setMenu = (v) => {
+      open = v;
+      menu.style.display = v ? 'flex' : 'none';
+      btn.setAttribute('aria-expanded', v ? 'true' : 'false');
+      btn.setAttribute('aria-label', v ? 'Close menu' : 'Open menu');
+      if (bars.length === 3) {
+        bars[0].style.transform = v ? 'translateY(7px) rotate(45deg)' : 'none';
+        bars[1].style.opacity = v ? '0' : '1';
+        bars[2].style.transform = v ? 'translateY(-7px) rotate(-45deg)' : 'none';
+      }
+    };
+    btn.addEventListener('click', () => setMenu(!open));
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    window.addEventListener('resize', () => { if (window.innerWidth > 820 && open) setMenu(false); });
+  })();
+
   // ── Copy-to-clipboard for [data-copy] buttons ──────────────
   document.querySelectorAll('[data-copy]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -362,24 +447,35 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
 
   // ── Auto-size the live terminal iframes to their content ────
   (function () {
-    // Give every terminal ONE uniform height: the tallest terminal's content,
-    // so they line up in a grid and none of them scroll.
-    const sizeIframes = () => {
-      const frames = [...document.querySelectorAll('#build iframe')];
-      let max = 0;
-      for (const f of frames) {
-        try {
-          const win = f.contentDocument && f.contentDocument.querySelector('.term-window');
-          if (win) max = Math.max(max, Math.ceil(win.getBoundingClientRect().height));
-        } catch (_) {}
-      }
-      if (max > 120 && max < 1600) {
-        const h = (max + 26) + 'px';
-        for (const f of frames) f.style.height = h;
-      }
+    // Fit each terminal to its OWN content (no forced uniform height), so there is
+    // no leftover black padding and the gap down to the snippet/title is identical
+    // for every act. None of them scroll.
+    const sizeOne = (f) => {
+      try {
+        const win = f.contentDocument && f.contentDocument.querySelector('.term-window');
+        if (win) {
+          const h = Math.ceil(win.getBoundingClientRect().height);
+          if (h > 120 && h < 2000) f.style.height = (h + 8) + 'px';
+        }
+      } catch (_) {}
     };
+    const sizeIframes = () => document.querySelectorAll('#build iframe').forEach(sizeOne);
     document.querySelectorAll('#build iframe').forEach((f) => {
-      f.addEventListener('load', () => { sizeIframes(); setTimeout(sizeIframes, 600); setTimeout(sizeIframes, 1600); });
+      f.addEventListener('load', () => {
+        const refit = () => sizeOne(f);
+        let pending = false;
+        const schedule = () => { if (pending) return; pending = true; setTimeout(() => { pending = false; refit(); }, 60); };
+        refit(); setTimeout(refit, 300); setTimeout(refit, 900); setTimeout(refit, 1800);
+        // Some screens (e.g. WebSockets) build their terminal and keep appending rows
+        // AFTER load. The screens use zoom:0.6, which suppresses ResizeObserver, so
+        // watch the DOM directly: any node change re-fits the frame to its content,
+        // so it grows to show everything instead of clipping into a scrollbar.
+        try {
+          const MO = f.contentWindow && f.contentWindow.MutationObserver;
+          const body = f.contentDocument && f.contentDocument.body;
+          if (MO && body) new MO(schedule).observe(body, { childList: true, subtree: true, characterData: true });
+        } catch (_) {}
+      });
     });
     setTimeout(sizeIframes, 1200);
     window.addEventListener('resize', sizeIframes);
