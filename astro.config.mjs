@@ -42,10 +42,6 @@ export default defineConfig({
 					autogenerate: { directory: 'cli' },
 				},
 				{
-					label: 'x402 Proxy',
-					autogenerate: {directory:'x402proxy'},
-				},
-				{
 					label: 'Facilitator',
 					autogenerate: {directory:'facilitator'},
 				},

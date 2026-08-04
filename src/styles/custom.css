@@ -1,3 +1,36 @@
+/* ============================================================
+   Consensus docs theme — matches the landing page.
+   Fonts: Space Grotesk (UI/headings) + JetBrains Mono (code/labels).
+   Requires the font <link> in Head.astro (see note at bottom).
+   ============================================================ */
+
+/* ---- Type system ---- */
+:root {
+  --sl-font: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --sl-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+/* Headings a touch tighter, like the landing */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.content-panel h1,
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Mono for eyebrows / sidebar group labels for the protocol-grade feel */
+.sidebar-content summary,
+.sidebar-content .large,
+nav.sidebar .top-level > li > a[aria-current] {
+  font-family: var(--sl-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---- Accent + surface tokens (monochrome) ---- */
 :root {
   --sl-color-accent: #fff;
   --sl-color-accent-high: #fff;
@@ -17,9 +50,55 @@
 :root[data-theme='dark'] {
   --sl-color-black: #000;
   --sl-color-bg: #000;
-  --sl-color-bg-nav: #000;
+  --sl-color-bg-nav: rgba(0, 0, 0, 0.55);
   --sl-color-bg-sidebar: #000;
+  /* hairline borders to echo the landing */
+  --sl-color-hairline-shade: rgba(255, 255, 255, 0.07);
+  --sl-color-hairline: rgba(255, 255, 255, 0.07);
+  --sl-color-gray-5: #0a0a0b;
+  --sl-color-gray-6: #060607;
 }
+
+/* Blurred sticky header, like the landing nav */
+:root[data-theme='dark'] .header {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Code blocks: bordered panel on near-black, matching the landing snippets */
+:root[data-theme='dark'] .sl-markdown-content pre {
+  background: #060607 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+.sl-markdown-content code {
+  font-family: var(--sl-font-mono);
+}
+
+/* Inline code chips */
+:root[data-theme='dark'] .sl-markdown-content :not(pre) > code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+/* Subtle link underline in prose */
+.sl-markdown-content a {
+  text-underline-offset: 0.2em;
+}
+
+/* Cards / asides pick up the hairline look in dark mode */
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] starlight-aside {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.018);
+  border-radius: 14px;
+}
+
+/* ============================================================
+   Existing rules (diagrams, lightbox, whitepaper CTA)
+   ============================================================ */
 
 .consensus-diagram {
   width: 100%;
