@@ -1,8 +1,24 @@
 /* ============================================================
-   Consensus docs theme — matches the landing page.
-   Fonts: Space Grotesk (UI/headings) + JetBrains Mono (code/labels).
-   Requires the font <link> in Head.astro (see note at bottom).
+   Consensus docs theme: matches the landing page.
+   Fonts: Space Grotesk (UI/headings) + JetBrains Mono (code/labels),
+   self-hosted as variable woff2 from public/fonts/.
    ============================================================ */
+
+/* ---- Self-hosted variable fonts ---- */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-variable.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-variable.woff2') format('woff2');
+}
 
 /* ---- Type system ---- */
 :root {

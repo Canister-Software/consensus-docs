@@ -1,11 +1,27 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
 	output:'static',
 	site: "https://docs.consensus.canister.software",
   	base: "/",
 	integrations: [
+		sitemap({
+			changefreq: 'weekly',
+			priority: 0.7,
+			serialize(item) {
+				// Landing page: top-priority entry point
+				if (item.url === 'https://docs.consensus.canister.software/') {
+					item.priority = 1.0;
+				}
+				// Node-operator + quickstart funnels: slight boost
+				else if (/\/(guides\/node|quickstart)\//.test(item.url)) {
+					item.priority = 0.9;
+				}
+				return item;
+			},
+		}),
 		starlight({
 			title: 'Consensus Docs',
 			

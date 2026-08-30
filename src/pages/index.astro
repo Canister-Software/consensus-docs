@@ -5,11 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Consensus | Tunnels, proxies, and stable IPs</title>
   <meta name="description" content="A decentralized x402 proxy and WebSocket network. Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402." />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://docs.consensus.canister.software/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Consensus" />
+  <meta property="og:title" content="Consensus | Tunnels, proxies, and stable IPs. No accounts. No API keys." />
+  <meta property="og:description" content="A decentralized x402 proxy and WebSocket network. Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402." />
+  <meta property="og:url" content="https://docs.consensus.canister.software/" />
+  <meta property="og:image" content="https://docs.consensus.canister.software/seo/consensus-protocol-seo-card.png" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Consensus: a decentralized x402 proxy and WebSocket network" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Consensus | Tunnels, proxies, and stable IPs" />
+  <meta name="twitter:description" content="Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402. No accounts, no API keys." />
+  <meta name="twitter:image" content="https://docs.consensus.canister.software/seo/consensus-protocol-seo-card.png" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json" is:inline>
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://docs.consensus.canister.software/#org",
+          "name": "Consensus",
+          "url": "https://docs.consensus.canister.software/",
+          "logo": "https://docs.consensus.canister.software/logo-light.svg",
+          "sameAs": [
+            "https://github.com/demali-876/consensus",
+            "https://discord.gg/6aquHGsn"
+          ]
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Consensus",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "Cross-platform",
+          "url": "https://docs.consensus.canister.software/",
+          "description": "A decentralized x402 proxy and WebSocket network. Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402.",
+          "publisher": { "@id": "https://docs.consensus.canister.software/#org" }
+        }
+      ]
+    }
+  </script>
+
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/fonts/space-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
   <style is:global>
+    @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:300 700;font-display:swap;src:url('/fonts/space-grotesk-variable.woff2') format('woff2')}
+    @font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-variable.woff2') format('woff2')}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{margin:0;background:#000;color:#fff;font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
