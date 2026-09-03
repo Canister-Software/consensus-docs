@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Run a Consensus node | Earn from the network</title>
+  <meta name="description" content="Run a Consensus node and earn directly from the traffic it carries. Rewards are 100% fair and equally distributed, with no staking tiers and no privileged validators." />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://docs.consensus.canister.software/join" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Consensus" />
+  <meta property="og:title" content="Run a Consensus node | Earn from the network" />
+  <meta property="og:description" content="Run a Consensus node and earn directly from the traffic it carries. Rewards are 100% fair and equally distributed, with no staking tiers and no privileged validators." />
+  <meta property="og:url" content="https://docs.consensus.canister.software/join" />
+  <meta property="og:image" content="https://docs.consensus.canister.software/seo/consensus-node-provider-card.png" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Consensus for node operators: run a node and earn from the network" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Run a Consensus node | Earn from the network" />
+  <meta name="twitter:description" content="Run a Consensus node and earn directly from the traffic it carries. Rewards are 100% fair and equally distributed." />
+  <meta name="twitter:image" content="https://docs.consensus.canister.software/seo/consensus-node-provider-card.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+  <!-- Fonts: self-hosted variable woff2 -->
+  <link rel="preload" href="/fonts/space-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
+
+  <style is:global>
+    @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:300 700;font-display:swap;src:url('/fonts/space-grotesk-variable.woff2') format('woff2')}
+    @font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-variable.woff2') format('woff2')}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:#000;color:#fff;font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+    ::selection{background:rgba(255,255,255,0.16)}
+    a{color:inherit}
+    @keyframes cs-pulse{0%{box-shadow:0 0 0 0 rgba(2,113,235,0.55)}70%{box-shadow:0 0 0 7px rgba(2,113,235,0)}100%{box-shadow:0 0 0 0 rgba(2,113,235,0)}}
+    @keyframes cs-spin{to{transform:rotate(360deg)}}
+    /* ---- Responsive: stack grids and tighten spacing on small screens ---- */
+    @media (max-width:860px){
+      [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr) !important}
+    }
+    @media (max-width:560px){
+      [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:1fr !important}
+      [style*="grid-template-columns:64px 1fr 1.1fr"]{grid-template-columns:1fr !important;gap:12px !important;padding:22px 0 !important}
+      [style*="padding:96px 28px 84px"]{padding:52px 20px 44px !important}
+      [style*="padding:88px 28px"]{padding:44px 20px !important}
+      [style*="padding:88px 28px 40px"]{padding:44px 20px 24px !important}
+      [style*="padding:40px 28px"]{padding:34px 20px !important}
+      [style*="padding:13px 28px"]{padding:13px 20px !important}
+      [style*="padding:34px 28px"]{padding:26px 20px !important}
+    }
+  </style>
+</head>
+<body>
+
+<div style="position:relative;width:100%;min-height:100vh;background:#000;overflow:hidden">
+
+  <!-- ============ NAV ============ -->
+  <header style="position:sticky;top:0;z-index:80;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(255,255,255,0.07)">
+    <nav style="max-width:1160px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;gap:26px">
+      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;flex-shrink:0">
+        <img src="/logo-light.svg" alt="" width="26" height="26" style="display:block" />
+        <span style="font-weight:600;font-size:17px;letter-spacing:-0.01em">Consensus</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.14);border-radius:6px;padding:2px 8px;margin-left:2px">Operators</span>
+      </a>
+      <a href="#start" style="margin-left:auto;text-decoration:none;font-size:14px;font-weight:500;color:#000;background:#fff;padding:8px 16px;border-radius:9px">Join the network</a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section style="position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.045) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 70% 80% at 30% 0%,#000 30%,transparent 74%);mask-image:radial-gradient(ellipse 70% 80% at 30% 0%,#000 30%,transparent 74%);pointer-events:none"></div>
+    <img src="/logo-light.svg" alt="" aria-hidden="true" style="position:absolute;top:-160px;right:-140px;width:560px;height:560px;opacity:0.05;animation:cs-spin 150s linear infinite;pointer-events:none" />
+    <div style="position:relative;max-width:1160px;margin:0 auto;padding:96px 28px 84px">
+      <div style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 14px;margin-bottom:28px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#0271EB;animation:cs-pulse 2.4s infinite"></span>Network live · Beta
+      </div>
+      <h1 style="margin:0;font-size:clamp(36px,4.8vw,62px);line-height:1.03;letter-spacing:-0.035em;font-weight:600;max-width:15ch"><span style="color:rgba(255,255,255,0.34)">I am.</span> <span style="color:rgba(255,255,255,0.6)">You are.</span><br />We are Consensus.</h1>
+      <p style="margin:18px 0 0;font-size:clamp(19px,2vw,26px);line-height:1.2;letter-spacing:-0.02em;font-weight:600;color:rgba(255,255,255,0.42)">Ready to power the network?</p>
+      <p style="margin:30px 0 0;font-size:clamp(17px,1.8vw,21px);line-height:1.55;color:rgba(255,255,255,0.6);max-width:60ch">Run a node. Carry traffic. Earn directly. Serve tunnels, proxy requests, and metered WebSocket sessions and earn from  network usage.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:38px">
+        <a href="#start" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#000;background:#fff;padding:13px 22px;border-radius:11px;transition:transform .2s ease,box-shadow .2s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(255,255,255,0.14)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Run a Node <span style="font-family:'JetBrains Mono',monospace">→</span></a>
+        <a href="#requirements" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#fff;border:1px solid rgba(255,255,255,0.16);padding:13px 22px;border-radius:11px;transition:border-color .2s ease,background .2s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.16)';this.style.background='transparent'">See requirements</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EARN STREAMS ============ -->
+  <section style="max-width:1160px;margin:0 auto;padding:88px 28px 40px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">Four ways a node earns</div>
+    <h2 style="margin:0 0 44px;font-size:clamp(26px,3.4vw,40px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:20ch">Every request you serve pays you.</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 01</div>
+        <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve tunnels</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Forward HTTP/TCP traffic for tunnels opened through your node and earn for the bytes you carry.</p>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 02</div>
+        <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve the proxy</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Execute deduplicated HTTP for the network and collect the per-request fee on every call you handle.</p>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 03</div>
+        <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Lease your IP</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Offer a verified, long-lived IP into the shared pool and earn when apps route through it for whitelisting.</p>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 04</div>
+        <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve WebSockets</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Host prepaid, metered sessions. Clients pay up front; you earn for the time and data you serve.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REQUIREMENTS ============ -->
+  <section id="requirements" style="border-top:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.012);scroll-margin-top:70px">
+    <div style="max-width:1160px;margin:0 auto;padding:40px 28px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:12px">The bar to join</div>
+      <h2 style="margin:0 0 10px;font-size:clamp(24px,3vw,34px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:22ch">Every node is vetted, to join and to stay.</h2>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:rgba(255,255,255,0.55);max-width:64ch">Consensus enforces quality rather than assuming it. A machine clears a baseline of cores, memory, and storage, then passes a live stress test to be admitted. The vetting never stops: the network tracks availability and performance, and re-tests nodes during their downtime.</p>
+
+      <!-- Tier 1: prerequisites as a light pill strip -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px">Baseline machine</div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:36px">
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Memory</span><span style="font-size:14px;font-weight:600;color:#fff">8 GB</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Cores</span><span style="font-size:14px;font-weight:600;color:#fff">4</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Storage</span><span style="font-size:14px;font-weight:600;color:#fff">50 GB SSD</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Bandwidth</span><span style="font-size:14px;font-weight:600;color:#fff">100 Mbps</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Public IPv4</span><span style="font-size:14px;font-weight:600;color:#fff">1 static</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Open port</span><span style="font-size:14px;font-weight:600;color:#fff">1 inbound</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Uptime</span><span style="font-size:14px;font-weight:600;color:#fff">24 / 7</span></span>
+        <span style="display:inline-flex;align-items:baseline;gap:9px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,0.02)"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Runtime</span><span style="font-size:14px;font-weight:600;color:#fff">Bun</span></span>
+      </div>
+
+      <!-- Tier 2: the four gates the admission stress test enforces -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px">The admission stress test</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,0.018)">
+          <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fff;margin-bottom:6px">5000 hash/s</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:9px">Encryption speed</div>
+          <div style="font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.5)">How fast the machine encrypts and signs the requests it serves.</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,0.018)">
+          <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fff;margin-bottom:6px">60s @ 16 KB</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:9px">Sustained speed</div>
+          <div style="font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.5)">Holds a steady rate through a full minute of load, without throttling.</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,0.018)">
+          <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fff;margin-bottom:6px">p99 &lt; 10 ms</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:9px">Responsiveness</div>
+          <div style="font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.5)">Picks up new work without stalls, even on a busy host.</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,0.018)">
+          <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fff;margin-bottom:6px">&lt; 2%</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:9px">Packet loss</div>
+          <div style="font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.5)">Keeps connections stable for live, metered sessions.</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:12.5px;line-height:1.5;color:rgba(255,255,255,0.4)">Admission is not the finish line: a heartbeat every 5 minutes proves availability, and the network re-tests nodes during their downtime.</div>
+    </div>
+  </section>
+
+  <!-- ============ STEPS ============ -->
+  <section id="start" style="border-top:1px solid rgba(255,255,255,0.07);scroll-margin-top:70px">
+    <div style="max-width:1160px;margin:0 auto;padding:88px 28px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">From install to earning</div>
+      <h2 style="margin:0 0 48px;font-size:clamp(26px,3.4vw,40px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:18ch">Three steps to a live node.</h2>
+
+      <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(255,255,255,0.1)">
+        <div style="display:grid;grid-template-columns:64px 1fr 1.1fr;gap:28px;align-items:center;padding:26px 0;border-bottom:1px solid rgba(255,255,255,0.1)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:rgba(255,255,255,0.28)">01</div>
+          <div>
+            <div style="font-size:19px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Clone and install</div>
+            <div style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.55)">Pull the node runtime and install its dependencies with Bun.</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:#060607;padding:14px 16px;overflow-x:auto">
+            <code style="display:block;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.88);white-space:pre"><span style="color:rgba(255,255,255,0.3)">$ </span>git clone https://github.com/Demali-876/consensus-node.git
+<span style="color:rgba(255,255,255,0.3)">$ </span>cd consensus-node
+<span style="color:rgba(255,255,255,0.3)">$ </span>bun install</code>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:64px 1fr 1.1fr;gap:28px;align-items:center;padding:26px 0;border-bottom:1px solid rgba(255,255,255,0.1)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:rgba(255,255,255,0.28)">02</div>
+          <div>
+            <div style="font-size:19px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Run guided setup</div>
+            <div style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.55)">One command installs the approved release, runs the live benchmark, verifies email, collects payout addresses, and registers. A domain is issued on pass.</div>
+            <div style="font-size:12.5px;line-height:1.5;color:rgba(255,255,255,0.4);margin-top:9px">Prefer a browser? <span style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.6)">bun run setup:wizard</span> runs the same flow on a local page.</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:#060607;padding:14px 16px;overflow-x:auto">
+            <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.88);white-space:nowrap"><span style="color:rgba(255,255,255,0.3)">$ </span>bun run setup</code>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:64px 1fr 1.1fr;gap:28px;align-items:center;padding:26px 0;border-bottom:1px solid rgba(255,255,255,0.1)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:rgba(255,255,255,0.28)">03</div>
+          <div>
+            <div style="font-size:19px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Keep it running</div>
+            <div style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.55)">Start the always-on control tunnel under pm2 and save it, so the node survives reboots and stays in the active set.</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:#060607;padding:14px 16px;overflow-x:auto">
+            <code style="display:block;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.88);white-space:pre"><span style="color:rgba(255,255,255,0.3)">$ </span>pm2 startOrReload ~/.consensus/node-runtime/current/ecosystem.config.cjs --only consensus-node-control --update-env
+<span style="color:rgba(255,255,255,0.3)">$ </span>pm2 save</code>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:44px;display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+        <a href="/guides/node/" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#000;background:#fff;padding:13px 22px;border-radius:11px;transition:transform .2s ease,box-shadow .2s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(255,255,255,0.14)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Read the full node guide <span style="font-family:'JetBrains Mono',monospace">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="border-top:1px solid rgba(255,255,255,0.07)">
+    <div style="max-width:1160px;margin:0 auto;padding:34px 28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="/logo-light.svg" alt="" width="22" height="22" />
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.4)">docs.consensus.canister.software/join</span>
+      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35)">© 2026 Canister Software · Beta</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

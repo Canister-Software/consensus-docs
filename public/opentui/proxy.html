@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, follow"/>
+  <title>Consensus · Proxy Live (opentui-faithful)</title>
+  <style>
+    /* ── Rosé Pine (canonical) ─────────────────────────── */
+    :root {
+      --base:#191724; --surface:#1f1d2e; --overlay:#26233a;
+      --muted:#6e6a86; --subtle:#908caa; --text:#e0def4;
+      --love:#eb6f92; --gold:#f6c177; --rose:#ebbcba;
+      --pine:#31748f; --foam:#9ccfd8; --iris:#c4a7e7;
+      --hl-low:#21202e; --hl-med:#403d52; --hl-high:#524f67;
+    }
+    :root.dawn {
+      --base:#faf4ed; --surface:#fffaf3; --overlay:#f2e9e1;
+      --muted:#9893a5; --subtle:#797593; --text:#575279;
+      --love:#b4637a; --gold:#ea9d34; --rose:#d7827e;
+      --pine:#286983; --foam:#56949f; --iris:#907aa9;
+      --hl-low:#f4ede8; --hl-med:#dfdad9; --hl-high:#cecacd;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; background:#0f0e16; }
+    html.dawn, html.dawn body { background:#e8e0d6; }
+    body {
+      font-family:'JetBrains Mono', ui-monospace, monospace;
+      color:var(--text); font-size:14px; line-height:1.5;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+
+    /* ── Terminal frame ─ */
+    .term-window {
+      width:min(1200px,100%); background:#000; border-radius:0;
+      box-shadow:none;
+      overflow:hidden; display:flex; flex-direction:column;
+    }
+    html.dawn .term-window { box-shadow:0 24px 80px rgba(60,50,40,0.28), 0 0 0 1px var(--hl-med); }
+    .term-chrome {
+      display:flex; align-items:center; gap:8px; padding:10px 14px;
+      background:var(--hl-low); border-bottom:1px solid var(--hl-med);
+      font-size:12px; color:var(--subtle);
+    }
+    .traffic-lights { display:flex; gap:6px; margin-right:8px; }
+    .traffic-lights span { width:12px; height:12px; border-radius:50%; display:inline-block; }
+    .traffic-lights .r{background:#ff5f57;} .traffic-lights .y{background:#febc2e;} .traffic-lights .g{background:#28c840;}
+    .term-chrome .title-bar { flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .term-chrome .ps1 { color:var(--muted); white-space:nowrap; }
+    @media (max-width:900px){ .term-chrome .ps1{ display:none; } }
+
+    /* ── opentui surface ──────────────────────────── */
+    .tui { background:var(--base); color:var(--text); padding:14px 16px 12px; min-height:760px; display:flex; flex-direction:column; gap:12px; }
+
+    .box { border:1px solid var(--hl-med); position:relative; padding:22px 14px 12px; background:transparent; display:flex; flex-direction:column; }
+    .box > .box-title {
+      position:absolute; top:-0.55em; left:12px; background:var(--base); padding:0 6px;
+      font-size:12px; letter-spacing:0.08em; color:var(--subtle); text-transform:uppercase; white-space:nowrap; line-height:1;
+    }
+    .box.accent { border-color:var(--foam); }
+    .box.accent > .box-title { color:var(--foam); }
+
+    /* ── Top brand bar ────────────────────────────── */
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 4px 6px; border-bottom:1px solid var(--hl-med); }
+    .brand { display:flex; align-items:baseline; gap:14px; }
+    .brand .mark { font-weight:700; letter-spacing:0.18em; color:var(--text); }
+    .brand .mark .accent { color:var(--iris); }
+    .brand .tag { font-size:12px; color:var(--muted); white-space:nowrap; }
+    @media (max-width:1100px){ .brand .tag{ display:none; } }
+    .topbar-right { display:flex; align-items:center; gap:18px; font-size:12px; }
+    .topbar-right .seg { display:flex; align-items:center; gap:6px; color:var(--subtle); }
+    .topbar-right .seg .k { color:var(--muted); }
+    .topbar-right .seg .v { color:var(--text); }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; vertical-align:middle; }
+    .dot.ok { background:var(--foam); box-shadow:0 0 6px var(--foam); }
+
+    /* ── Connection / status bar ──────────────────── */
+    .connbar { display:flex; align-items:center; gap:18px; padding:9px 14px; background:var(--hl-low); border:1px solid var(--hl-med); }
+    .connbar .status { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; letter-spacing:0.06em; color:var(--foam); white-space:nowrap; }
+    .connbar .status .pulse { width:9px; height:9px; border-radius:50%; background:var(--foam); animation:pulse 2s infinite; }
+    @keyframes pulse {
+      0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--foam) 70%, transparent); }
+      70%{ box-shadow:0 0 0 7px color-mix(in srgb, var(--foam) 0%, transparent); }
+      100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--foam) 0%, transparent); }
+    }
+    .connbar .midmeta { flex:1; display:flex; align-items:center; gap:8px; justify-content:center; min-width:0; font-size:13px; color:var(--subtle); }
+    .connbar .midmeta .arrow { color:var(--muted); }
+    .connbar .midmeta .em { color:var(--text); }
+    .connbar .clock { font-size:13px; color:var(--subtle); white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .connbar .clock .k { color:var(--muted); }
+
+    /* ── Overview tiles ───────────────────────────── */
+    .tiles { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+    @media (max-width:1000px){ .tiles{ grid-template-columns:repeat(3,1fr); } }
+    .tile { border:1px solid var(--hl-med); padding:9px 12px 8px; display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .tile .t-label { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+    .tile .t-value { font-size:18px; color:var(--text); font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tile .t-value .unit { font-size:11px; color:var(--muted); margin-left:3px; font-weight:400; }
+    .tile .t-value.foam{ color:var(--foam); } .tile .t-value.iris{ color:var(--iris); } .tile .t-value.gold{ color:var(--gold); }
+    .tile .t-sub { font-size:10px; color:var(--muted); white-space:nowrap; }
+    .tile.spend.hidden, .tile.budget.hidden { display:none; }
+
+    /* budget bar */
+    .bbar { display:flex; align-items:center; gap:8px; }
+    .bbar .track { flex:1; height:8px; background:var(--hl-med); position:relative; overflow:hidden; }
+    .bbar .fill { position:absolute; inset:0 auto 0 0; background:var(--foam); width:24%; }
+    .bbar .pct { font-size:12px; color:var(--subtle); font-variant-numeric:tabular-nums; }
+
+    /* ── Mid grid: checks/latency + app control ───── */
+    .mid { display:grid; grid-template-columns:1.25fr 1fr; gap:12px; align-items:start; flex:1; min-height:0; }
+    @media (max-width:1000px){ .mid{ grid-template-columns:1fr; } }
+    .col { display:flex; flex-direction:column; gap:12px; }
+
+    .sub-h { font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; display:flex; align-items:center; gap:10px; }
+    .sub-h::after { content:''; flex:1; border-top:1px dashed var(--hl-med); }
+    .sub-h .meta { letter-spacing:0.04em; text-transform:none; }
+
+    /* recent checks strip */
+    .checks { display:flex; gap:3px; flex-wrap:wrap; }
+    .checks i { width:11px; height:11px; display:block; background:var(--foam); }
+    .checks i.bad { background:var(--gold); }
+    .checks i.miss { background:transparent; border:1px solid var(--hl-med); }
+    .checks-meta { font-size:11px; color:var(--muted); margin-top:8px; }
+    .checks-meta .ok { color:var(--foam); }
+
+    /* latency sparkline */
+    .spark { display:flex; align-items:flex-end; gap:2px; height:52px; margin:2px 0 10px; }
+    .spark i { width:5px; background:var(--foam); display:block; opacity:0.9; }
+    .spark i.slow { background:var(--gold); }
+    .latrow { display:flex; gap:22px; font-size:12px; color:var(--subtle); flex-wrap:wrap; }
+    .latrow .seg .k { color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; font-size:10px; margin-right:6px; }
+    .latrow .seg .v { color:var(--text); font-variant-numeric:tabular-nums; }
+
+    /* throughput mini */
+    .thru { display:flex; gap:26px; font-size:13px; flex-wrap:wrap; }
+    .thru .seg { display:flex; flex-direction:column; gap:2px; }
+    .thru .seg .k { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+    .thru .seg .v { color:var(--text); font-variant-numeric:tabular-nums; }
+    .thru .seg .v .dir { color:var(--muted); }
+    .thru .seg .rate { font-size:11px; color:var(--foam); }
+
+    /* APP CONTROL */
+    .appctl .ac-row { display:grid; grid-template-columns:108px 1fr; column-gap:12px; padding:4px 0; font-size:13px; align-items:baseline; }
+    .appctl .ac-row + .ac-row { border-top:1px dotted var(--hl-low); }
+    .appctl .ac-k { font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+    .appctl .ac-v { color:var(--text); word-break:break-word; }
+    .appctl .ac-v.dim { color:var(--subtle); }
+    .appctl .ac-v.mono { color:var(--subtle); font-size:12px; }
+    .appctl .ac-v .foam { color:var(--foam); } .appctl .ac-v .gold { color:var(--gold); } .appctl .ac-v .iris { color:var(--iris); }
+    .badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:1px 8px; border:1px solid var(--foam); color:var(--foam); letter-spacing:0.04em; }
+    .badge .bd { width:6px; height:6px; border-radius:50%; background:var(--foam); }
+    .badge.gold { border-color:var(--gold); color:var(--gold); } .badge.gold .bd { background:var(--gold); }
+
+    .ac-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .ac-btn { font-family:inherit; font-size:12px; background:transparent; color:var(--subtle); border:1px solid var(--hl-med); padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; letter-spacing:0.04em; }
+    .ac-btn .k { background:var(--subtle); color:var(--base); font-weight:700; font-size:10px; padding:0 5px; border-radius:1px; }
+    .ac-btn:hover { color:var(--text); border-color:var(--subtle); background:var(--hl-low); }
+    .ac-btn.go { border-color:var(--foam); color:var(--foam); } .ac-btn.go .k { background:var(--foam); }
+
+    /* ── Footer key hints ─────────────────────────── */
+    .keybar { display:flex; gap:18px; padding:8px 4px 0; border-top:1px solid var(--hl-med); font-size:12px; color:var(--subtle); flex-wrap:wrap; align-items:center; }
+    .keybar .k { color:var(--base); background:var(--subtle); padding:0 5px; margin-right:6px; border-radius:1px; font-weight:700; font-size:11px; }
+    .keybar .k.danger { background:var(--love); }
+    .keybar .grow { flex:1; }
+    .keybar .right { color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; }
+
+    .meta-strip { max-width:1200px; margin:14px auto 0; display:flex; gap:18px; flex-wrap:wrap; color:#6b6480; font-size:11px; letter-spacing:0.06em; }
+    html.dawn .meta-strip { color:#8a8197; }
+    .meta-strip .lbl { color:var(--subtle); text-transform:uppercase; letter-spacing:0.14em; }
+
+    .hidden { display:none !important; }
+  </style>
+<style id="embed-tweaks">.meta-strip{display:none!important}html,body{background:#000!important;height:auto!important}body{padding:0!important;align-items:flex-start!important;zoom:0.6;min-height:0!important}</style>
+  <style>@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-variable.woff2') format('woff2')}</style>
+</head>
+<body>
+
+  <div style="width:100%; max-width:1200px;">
+
+    <div class="term-window">
+      <div class="term-chrome">
+        <div class="traffic-lights"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="title-bar">consensus — ~/code/consensus — 168×46</div>
+        <div class="ps1" id="ps1">$ consensus proxy forward</div>
+      </div>
+
+      <div class="tui" id="tui">
+
+        <!-- Top bar -->
+        <div class="topbar">
+          <div class="brand">
+            <span class="mark"><span class="accent">▲</span> CONSENSUS</span>
+            <span class="tag">your private network, on demand</span>
+          </div>
+          <div class="topbar-right">
+            <span class="seg"><span class="dot ok"></span><span class="v">live</span></span>
+            <span class="seg"><span class="k">acct</span> <span class="v">bob</span></span>
+            <span class="seg" id="balance-seg"><span class="k">tier</span> <span class="v">free</span></span>
+            <span class="seg"><span class="k">v</span> <span class="v">2.4.1</span></span>
+          </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="connbar">
+          <div class="status"><span class="pulse"></span><span id="run-state">RUNNING</span> <span style="color:var(--subtle);" id="run-port">:8080</span></div>
+          <div class="midmeta" id="midmeta">
+            <span class="em">app :3000</span><span class="arrow">→</span><span>consensus</span><span class="arrow">·</span><span>preload</span>
+          </div>
+          <div class="clock"><span class="k">uptime</span> <span id="uptime">00:42:18</span></div>
+        </div>
+
+        <!-- Overview tiles -->
+        <div class="tiles">
+          <div class="tile">
+            <span class="t-label">Requests</span>
+            <span class="t-value gold" id="req-val">1,204</span>
+            <span class="t-sub" id="rpm-sub">~26 / min</span>
+          </div>
+          <div class="tile">
+            <span class="t-label">Last status</span>
+            <span class="t-value foam" id="status-val">200</span>
+            <span class="t-sub" id="status-sub">success</span>
+          </div>
+          <div class="tile">
+            <span class="t-label">Cache hits</span>
+            <span class="t-value" id="cache-val">n/a</span>
+            <span class="t-sub" id="cache-sub">reverse only</span>
+          </div>
+          <div class="tile spend hidden">
+            <span class="t-label">Spend</span>
+            <span class="t-value" id="spend-val">$0.024918</span>
+            <span class="t-sub">session total</span>
+          </div>
+          <div class="tile budget hidden">
+            <span class="t-label">Budget · $5.00</span>
+            <div class="bbar"><span class="track"><span class="fill" id="budget-fill"></span></span><span class="pct" id="budget-pct">0%</span></div>
+            <span class="t-sub" id="budget-sub">$4.98 left</span>
+          </div>
+          <div class="tile" id="checks-rate-tile">
+            <span class="t-label">Success rate</span>
+            <span class="t-value foam" id="succ-val">98<span class="unit">%</span></span>
+            <span class="t-sub" id="succ-sub">last 40 checks</span>
+          </div>
+        </div>
+
+        <!-- Mid grid -->
+        <div class="mid">
+
+          <!-- left: latency + throughput + checks -->
+          <div class="col">
+            <div class="box accent" style="flex:1;">
+              <div class="box-title">Latency · last 40</div>
+              <div class="spark" id="spark"></div>
+              <div class="latrow">
+                <span class="seg"><span class="k">current</span><span class="v" id="lat-cur">38 ms</span></span>
+                <span class="seg"><span class="k">avg</span><span class="v" id="lat-avg">52 ms</span></span>
+                <span class="seg"><span class="k">p95</span><span class="v" id="lat-p95">180 ms</span></span>
+                <span class="seg"><span class="k">samples</span><span class="v" id="lat-samples">40</span></span>
+              </div>
+            </div>
+
+            <div class="box">
+              <div class="box-title">Throughput</div>
+              <div class="thru">
+                <div class="seg">
+                  <span class="k">↑ Sent</span>
+                  <span class="v" id="sent-val">8.42 MB</span>
+                  <span class="rate" id="sent-rate">112.4 KB/s</span>
+                </div>
+                <div class="seg">
+                  <span class="k">↓ Received</span>
+                  <span class="v" id="recv-val">41.7 MB</span>
+                  <span class="rate" id="recv-rate">486.1 KB/s</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="box">
+              <div class="box-title">Recent checks</div>
+              <div class="checks" id="checks"></div>
+              <div class="checks-meta"><span class="ok" id="checks-ok">39</span> ok · <span id="checks-bad">1</span> failed · last 40 health probes</div>
+            </div>
+          </div>
+
+          <!-- right: APP CONTROL (forward only) -->
+          <div class="col" id="appctl-col">
+            <div class="box appctl" style="flex:1;">
+              <div class="box-title">App control</div>
+              <div class="ac-row">
+                <span class="ac-k">App status</span>
+                <span class="ac-v"><span class="badge"><span class="bd"></span>running</span> <span class="dim" style="margin-left:6px;">pid 4821</span></span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Last probe</span>
+                <span class="ac-v"><span class="foam">reachable</span> · 200 /healthz · 31 ms · 2s ago</span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Launch cmd</span>
+                <span class="ac-v mono">bun --preload .consensus-preload.ts ~/code/my-api/server.ts</span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Fetch mode</span>
+                <span class="ac-v mono">preload → <span class="iris">globalThis.fetch</span> → consensus</span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Preload</span>
+                <span class="ac-v mono">.consensus-preload.ts · auto restart enabled</span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Routing</span>
+                <span class="ac-v">inclusive · <span class="foam">/api</span>, <span class="foam">/v2</span> · subroutes on</span>
+              </div>
+              <div class="ac-row">
+                <span class="ac-k">Node</span>
+                <span class="ac-v">us-west-1 · auto · 38 ms</span>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn go"><span class="k">L</span>relaunch app</button>
+                <button class="ac-btn"><span class="k">T</span>test probe</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Key hints bar -->
+        <div class="keybar" id="keybar">
+          <span id="kb-launch"><span class="k">L</span>launch</span>
+          <span id="kb-test"><span class="k">T</span>test</span>
+          <span><span class="k">↑↓</span>scroll</span>
+          <span><span class="k danger">S</span>stop proxy</span>
+          <span><span class="k">B</span>back</span>
+          <span class="grow"></span>
+          <span class="right" id="keybar-right">forward proxy · live</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="meta-strip">
+      <span><span class="lbl">screen</span>  proxy live (running dashboard)</span>
+      <span><span class="lbl">grid</span>  168×46 cells · jetbrains mono</span>
+      <span><span class="lbl">palette</span>  rosé pine</span>
+      <span><span class="lbl">toggle</span>  use Tweaks to flip type / theme / tier</span>
+    </div>
+
+  </div>
+
+  <!-- ── Live proxy simulation ─────────────────────── -->
+  <script>
+    (function () {
+      const state = {
+        type: 'forward',
+        free: true,
+        requests: 1204,
+        bytesSent: 8.42 * 1048576,
+        bytesRecv: 41.7 * 1048576,
+        spend: 0.024918,
+        budget: 5.00,
+        startedAt: Date.now() - (42 * 60 + 18) * 1000,
+        latencies: [38,44,51,39,62,47,80,41,55,48,70,39,44,90,52,36,41,72,48,53,44,39,58,47,62,41,88,39,51,44,36,70,48,52,41,39,96,44,38,47],
+        checks: Array.from({length:40}, (_,i) => i === 6 ? false : Math.random() > 0.97 ? false : true),
+        lastStatus: 200,
+      };
+
+      const $ = id => document.getElementById(id);
+      function fmtBytes(b){ if(b<1024)return b.toFixed(0)+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(2)+' MB'; }
+      function fmtRate(bps){ if(bps<1024)return bps.toFixed(1)+' B/s'; if(bps<1048576)return (bps/1024).toFixed(1)+' KB/s'; return (bps/1048576).toFixed(1)+' MB/s'; }
+
+      let prev = { req: state.requests, sent: state.bytesSent, recv: state.bytesRecv, t: Date.now() };
+
+      function renderSpark() {
+        const max = Math.max(...state.latencies, 1);
+        $('spark').innerHTML = state.latencies.map(v => {
+          const h = Math.max(3, Math.round(v/max*52));
+          return '<i class="'+(v>1000?'slow':'')+'" style="height:'+h+'px;"></i>';
+        }).join('');
+      }
+      function renderChecks() {
+        $('checks').innerHTML = state.checks.map(ok => '<i class="'+(ok?'':'bad')+'"></i>').join('');
+        const ok = state.checks.filter(Boolean).length;
+        $('checks-ok').textContent = ok;
+        $('checks-bad').textContent = state.checks.length - ok;
+        const pct = Math.round(ok/state.checks.length*100);
+        $('succ-val').innerHTML = pct+'<span class="unit">%</span>';
+      }
+      function renderStats() {
+        const now = Date.now();
+        const dt = Math.max((now - prev.t)/1000, 1);
+        const sentRate = (state.bytesSent - prev.sent)/dt;
+        const recvRate = (state.bytesRecv - prev.recv)/dt;
+        prev = { req: state.requests, sent: state.bytesSent, recv: state.bytesRecv, t: now };
+
+        $('req-val').textContent = state.requests.toLocaleString();
+        $('sent-val').textContent = fmtBytes(state.bytesSent);
+        $('recv-val').textContent = fmtBytes(state.bytesRecv);
+        $('sent-rate').textContent = fmtRate(sentRate);
+        $('recv-rate').textContent = fmtRate(recvRate);
+
+        const lats = state.latencies;
+        const cur = lats[lats.length-1];
+        const avg = lats.reduce((s,v)=>s+v,0)/lats.length;
+        const sorted = [...lats].sort((a,b)=>a-b);
+        const p95 = sorted[Math.min(sorted.length-1, Math.ceil(sorted.length*0.95)-1)];
+        $('lat-cur').textContent = Math.round(cur)+' ms';
+        $('lat-avg').textContent = Math.round(avg)+' ms';
+        $('lat-p95').textContent = Math.round(p95)+' ms';
+        $('lat-samples').textContent = lats.length;
+
+        $('status-val').textContent = state.lastStatus;
+        const ok = state.lastStatus < 400;
+        $('status-val').className = 't-value ' + (ok ? 'foam' : 'gold');
+        $('status-sub').textContent = ok ? 'success' : 'client error';
+
+        // spend / budget (paid only)
+        if (!state.free) {
+          $('spend-val').textContent = '$' + state.spend.toFixed(6);
+          const pct = Math.min(state.spend/state.budget, 1);
+          $('budget-fill').style.width = (pct*100).toFixed(1)+'%';
+          $('budget-pct').textContent = Math.round(pct*100)+'%';
+          $('budget-fill').style.background = pct>0.8?'var(--love)':pct>0.5?'var(--gold)':'var(--foam)';
+          $('budget-sub').textContent = '$' + Math.max(state.budget-state.spend,0).toFixed(2) + ' left';
+        }
+      }
+      function tickClock() {
+        const s = Math.floor((Date.now() - state.startedAt)/1000);
+        $('uptime').textContent = [Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');
+        const rpm = Math.round(state.requests/(s/60));
+        $('rpm-sub').textContent = '~'+rpm+' / min';
+      }
+
+      function step() {
+        const burst = 1 + Math.floor(Math.random()*5);
+        state.requests += burst;
+        const lat = Math.round(20 + Math.random()*90 + (Math.random()>0.94?Math.random()*900:0));
+        state.latencies.push(lat); if(state.latencies.length>40) state.latencies.shift();
+        const ok = Math.random() > 0.04;
+        state.checks.push(ok); if(state.checks.length>40) state.checks.shift();
+        state.lastStatus = ok ? (Math.random()>0.85?304:200) : (Math.random()>0.5?429:502);
+        state.bytesSent += burst * (800 + Math.random()*4000);
+        state.bytesRecv += burst * (3000 + Math.random()*40000);
+        if (!state.free) state.spend += burst * 0.0000071;
+        renderStats(); renderSpark(); renderChecks();
+      }
+
+      window.__proxy = {
+        setType(type) {
+          state.type = type;
+          const isFwd = type === 'forward';
+          $('run-port').textContent = isFwd ? ':8080' : ':8081';
+          $('midmeta').innerHTML = isFwd
+            ? '<span class="em">app :3000</span><span class="arrow">→</span><span>consensus</span><span class="arrow">·</span><span>preload</span>'
+            : '<span class="em">upstream localhost:3000</span><span class="arrow">→</span><span>proxy :8081</span><span class="arrow">·</span><span>cached</span>';
+          $('ps1').textContent = '$ consensus proxy ' + type;
+          $('keybar-right').textContent = type + ' proxy · live';
+          // cache: forward = n/a, reverse = numbers
+          if (isFwd) {
+            $('cache-val').textContent = 'n/a';
+            $('cache-sub').textContent = 'reverse only';
+          } else {
+            $('cache-val').innerHTML = '312';
+            $('cache-sub').textContent = '26% hit rate';
+          }
+          // app control + L/T keys are forward-only
+          $('appctl-col').classList.toggle('hidden', !isFwd);
+          $('kb-launch').classList.toggle('hidden', !isFwd);
+          $('kb-test').classList.toggle('hidden', !isFwd);
+          // when reverse, let latency column span full width
+          document.querySelector('.mid').style.gridTemplateColumns = isFwd ? '' : '1fr';
+        },
+        setFree(free) {
+          state.free = free;
+          document.querySelectorAll('.tile.spend, .tile.budget').forEach(t => t.classList.toggle('hidden', free));
+          const bal = $('balance-seg');
+          bal.innerHTML = free
+            ? '<span class="k">tier</span> <span class="v">free</span>'
+            : '<span class="k">bal</span> <span class="v">$24.18</span>';
+          if (!free) renderStats();
+        },
+      };
+
+      renderSpark(); renderChecks(); renderStats(); tickClock();
+      setInterval(tickClock, 1000);
+      (function loop(){ setTimeout(()=>{ step(); loop(); }, 900 + Math.random()*1600); })();
+    })();
+  </script>
+
+</body>
+</html>

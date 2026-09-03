@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, follow"/>
+  <title>Consensus · Nodes (opentui-faithful)</title>
+  <style>
+    /* ── Rosé Pine (canonical) ─────────────────────────── */
+    :root {
+      --base:#191724; --surface:#1f1d2e; --overlay:#26233a;
+      --muted:#6e6a86; --subtle:#908caa; --text:#e0def4;
+      --love:#eb6f92; --gold:#f6c177; --rose:#ebbcba;
+      --pine:#31748f; --foam:#9ccfd8; --iris:#c4a7e7;
+      --hl-low:#21202e; --hl-med:#403d52; --hl-high:#524f67;
+    }
+    :root.dawn {
+      --base:#faf4ed; --surface:#fffaf3; --overlay:#f2e9e1;
+      --muted:#9893a5; --subtle:#797593; --text:#575279;
+      --love:#b4637a; --gold:#ea9d34; --rose:#d7827e;
+      --pine:#286983; --foam:#56949f; --iris:#907aa9;
+      --hl-low:#f4ede8; --hl-med:#dfdad9; --hl-high:#cecacd;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; background:#0f0e16; }
+    html.dawn, html.dawn body { background:#e8e0d6; }
+    body {
+      font-family:'JetBrains Mono', ui-monospace, monospace;
+      color:var(--text); font-size:14px; line-height:1.5;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+
+    .term-window {
+      width:min(1200px,100%); background:#000; border-radius:0;
+      box-shadow:none;
+      overflow:hidden; display:flex; flex-direction:column; position:relative;
+    }
+    html.dawn .term-window { box-shadow:0 24px 80px rgba(60,50,40,0.28), 0 0 0 1px var(--hl-med); }
+    .term-chrome {
+      display:flex; align-items:center; gap:8px; padding:10px 14px;
+      background:var(--hl-low); border-bottom:1px solid var(--hl-med); font-size:12px; color:var(--subtle);
+    }
+    .traffic-lights { display:flex; gap:6px; margin-right:8px; }
+    .traffic-lights span { width:12px; height:12px; border-radius:50%; display:inline-block; }
+    .traffic-lights .r{background:#ff5f57;} .traffic-lights .y{background:#febc2e;} .traffic-lights .g{background:#28c840;}
+    .term-chrome .title-bar { flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .term-chrome .ps1 { color:var(--muted); white-space:nowrap; }
+    @media (max-width:900px){ .term-chrome .ps1{ display:none; } }
+
+    .tui { background:var(--base); color:var(--text); padding:14px 16px 12px; min-height:720px; display:flex; flex-direction:column; gap:12px; }
+
+    .box { border:1px solid var(--hl-med); position:relative; padding:22px 0 6px; background:transparent; display:flex; flex-direction:column; }
+    .box > .box-title {
+      position:absolute; top:-0.55em; left:12px; background:var(--base); padding:0 6px;
+      font-size:12px; letter-spacing:0.08em; color:var(--subtle); text-transform:uppercase; white-space:nowrap; line-height:1;
+    }
+    .box.accent { border-color:var(--foam); }
+    .box.accent > .box-title { color:var(--foam); }
+
+    /* ── Top brand bar ────────────────────────────── */
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 4px 6px; border-bottom:1px solid var(--hl-med); }
+    .brand { display:flex; align-items:baseline; gap:14px; }
+    .brand .mark { font-weight:700; letter-spacing:0.18em; color:var(--text); }
+    .brand .mark .accent { color:var(--iris); }
+    .brand .bt { font-size:12px; color:var(--muted); white-space:nowrap; }
+    @media (max-width:1100px){ .brand .bt{ display:none; } }
+    .topbar-right { display:flex; align-items:center; gap:18px; font-size:12px; }
+    .topbar-right .seg { display:flex; align-items:center; gap:6px; color:var(--subtle); }
+    .topbar-right .seg .k { color:var(--muted); }
+    .topbar-right .seg .v { color:var(--text); }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; vertical-align:middle; }
+    .dot.ok { background:var(--foam); box-shadow:0 0 6px var(--foam); }
+
+    /* ── Context row ──────────────────────────────── */
+    .ctx { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; padding:0 2px; }
+    .ctx .crumbs { display:flex; align-items:baseline; gap:8px; font-size:13px; color:var(--subtle); }
+    .ctx .crumbs .here { color:var(--text); }
+    .ctx .crumbs .sep { color:var(--muted); }
+    .ctx .crumbs .caret { color:var(--iris); }
+    .ctx .sub { font-size:11px; color:var(--muted); margin-top:3px; letter-spacing:0.02em; }
+    .ctx .meta { font-size:12px; color:var(--subtle); text-align:right; }
+    .ctx .meta .v { color:var(--text); } .ctx .meta .acc { color:var(--foam); }
+
+    /* ── Lease status row ─────────────────────────── */
+    .leasebar { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--hl-med); background:var(--hl-low); font-size:13px; }
+    .leasebar.active { border-color:var(--foam); }
+    .leasebar .ld { width:9px; height:9px; border-radius:50%; flex:none; }
+    .leasebar.none .ld { background:transparent; border:1px solid var(--muted); }
+    .leasebar.active .ld { background:var(--foam); box-shadow:0 0 6px var(--foam); }
+    .leasebar .lt { color:var(--text); }
+    .leasebar.none .lt { color:var(--subtle); }
+    .leasebar .lt .dom { color:var(--foam); font-weight:500; }
+    .leasebar .lt .sub { color:var(--muted); }
+    .leasebar .free { margin-left:auto; font-size:11px; color:var(--foam); display:flex; align-items:center; gap:6px; }
+    .leasebar .free .fd { width:6px; height:6px; border-radius:50%; border:1px solid var(--foam); }
+
+    /* ── Filter row ───────────────────────────────── */
+    .filterrow { display:flex; align-items:center; gap:10px; font-size:12px; }
+    .filterrow .chips { display:flex; gap:6px; }
+    .filterrow .chip {
+      font-family:inherit; font-size:12px; padding:2px 12px; border:1px solid var(--hl-med);
+      background:transparent; color:var(--subtle); cursor:pointer; letter-spacing:0.04em;
+    }
+    .filterrow .chip.on { background:var(--iris); color:var(--base); border-color:var(--iris); font-weight:500; }
+    .filterrow .chip:not(.on):hover { color:var(--text); background:var(--hl-low); }
+    .filterrow .sort { margin-left:auto; color:var(--muted); font-size:11px; }
+    .filterrow .sort .v { color:var(--subtle); }
+
+    /* ── Node table ───────────────────────────────── */
+    .ntable { width:100%; border-collapse:collapse; }
+    .ntable th {
+      text-align:left; font-weight:500; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--muted); padding:2px 12px 7px; border-bottom:1px solid var(--hl-med); white-space:nowrap;
+    }
+    .ntable th.r, .ntable td.r { text-align:right; }
+    .ntable td {
+      padding:6px 12px; font-size:13px; color:var(--text);
+      border-bottom:1px dotted var(--hl-low); white-space:nowrap; font-variant-numeric:tabular-nums;
+      overflow:hidden; text-overflow:ellipsis;
+    }
+    .ntable tbody tr { cursor:pointer; }
+    .ntable tbody tr:hover td { background:var(--hl-low); }
+    .ntable tbody tr.sel td { background:var(--hl-low); box-shadow:inset 2px 0 0 var(--iris); }
+    .ntable tbody tr.leased td { color:var(--foam); }
+    .ntable tbody tr.dim td { color:var(--muted); }
+    .ntable .marker { width:18px; color:var(--iris); padding-right:0; }
+    .ntable tr.leased .marker { color:var(--foam); }
+    .ntable .node-id { color:var(--text); font-weight:500; }
+    .ntable tr.dim .node-id { color:var(--subtle); }
+    .ntable .domain { color:var(--subtle); }
+    .ntable .region { color:var(--subtle); }
+    .ntable .ip { color:var(--muted); }
+    .ntable .score { color:var(--text); }
+    .ntable .score .slash { color:var(--muted); font-size:11px; }
+    .ntable .score.hi { color:var(--foam); } .ntable .score.mid { color:var(--gold); }
+    .ntable .lat.ok { color:var(--foam); } .ntable .lat.warn { color:var(--gold); } .ntable .lat.bad { color:var(--love); }
+    .ntable .caps { color:var(--muted); font-size:12px; }
+    .ntable .leasetag {
+      display:inline-flex; align-items:center; gap:5px; font-size:10px; letter-spacing:0.04em; text-transform:uppercase;
+      border:1px solid var(--foam); color:var(--foam); padding:0 6px;
+    }
+    .loadbar { display:inline-flex; align-items:center; gap:7px; }
+    .loadbar .track { width:46px; height:6px; background:var(--hl-med); position:relative; overflow:hidden; }
+    .loadbar .fill { position:absolute; inset:0 auto 0 0; background:var(--foam); }
+    .loadbar .pct { font-size:11px; color:var(--muted); min-width:30px; }
+
+    .tbl-foot { padding:8px 12px 0; font-size:11px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+    .tbl-foot .kbd, .kbd { font-size:11px; color:var(--base); background:var(--subtle); padding:0 5px; border-radius:1px; font-weight:700; }
+
+    /* ── Footer key hints ─────────────────────────── */
+    .keybar { display:flex; gap:18px; padding:8px 4px 0; border-top:1px solid var(--hl-med); font-size:12px; color:var(--subtle); flex-wrap:wrap; align-items:center; margin-top:auto; }
+    .keybar .k { color:var(--base); background:var(--subtle); padding:0 5px; margin-right:6px; border-radius:1px; font-weight:700; font-size:11px; }
+    .keybar .grow { flex:1; }
+    .keybar .right { color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; }
+
+    .meta-strip { max-width:1200px; margin:14px auto 0; display:flex; gap:18px; flex-wrap:wrap; color:#6b6480; font-size:11px; letter-spacing:0.06em; }
+    html.dawn .meta-strip { color:#8a8197; }
+    .meta-strip .lbl { color:var(--subtle); text-transform:uppercase; letter-spacing:0.14em; }
+
+    /* ── Confirm modal ────────────────────────────── */
+    .scrim {
+      position:absolute; inset:0; background:rgba(15,14,22,0.66);
+      display:none; align-items:center; justify-content:center; z-index:30; padding:20px;
+    }
+    html.dawn .scrim { background:rgba(80,70,60,0.34); }
+    .scrim.open { display:flex; animation:fade 0.14s ease; }
+    @keyframes fade { from { opacity:0; } to { opacity:1; } }
+    .modal {
+      width:min(560px,100%); background:var(--base); border:1px solid var(--foam);
+      box-shadow:0 18px 60px rgba(0,0,0,0.5); position:relative;
+      animation:pop 0.16s cubic-bezier(0.2,0.9,0.3,1.2);
+    }
+    @keyframes pop { from { transform:translateY(8px) scale(0.98); opacity:0; } to { transform:none; opacity:1; } }
+    .modal .m-title {
+      position:absolute; top:-0.6em; left:16px; background:var(--base); padding:0 8px;
+      font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--foam); line-height:1;
+    }
+    .modal .m-body { padding:22px 18px 6px; }
+    .modal .m-node { font-size:16px; color:var(--foam); font-weight:500; word-break:break-all; }
+    .modal .m-region { font-size:12px; color:var(--muted); margin-top:2px; }
+    .modal .m-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 24px; margin-top:16px; border-top:1px dashed var(--hl-med); padding-top:12px; }
+    .modal .m-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:4px 0; font-size:13px; border-bottom:1px dotted var(--hl-low); }
+    .modal .m-row .mk { color:var(--muted); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; }
+    .modal .m-row .mv { color:var(--text); font-variant-numeric:tabular-nums; }
+    .modal .m-row .mv.foam { color:var(--foam); } .modal .m-row .mv.gold { color:var(--gold); }
+    .modal .m-note {
+      margin:14px 0 4px; padding:9px 12px; background:var(--hl-low); border:1px solid var(--hl-med);
+      font-size:12px; color:var(--subtle); display:flex; align-items:flex-start; gap:8px;
+    }
+    .modal .m-note .ni { color:var(--foam); }
+    .modal .m-actions { display:flex; gap:10px; justify-content:flex-end; padding:6px 18px 18px; }
+    .mbtn {
+      font-family:inherit; font-size:13px; padding:6px 18px; cursor:pointer; letter-spacing:0.04em;
+      display:inline-flex; align-items:center; gap:8px; border:1px solid var(--hl-med); background:transparent; color:var(--subtle);
+    }
+    .mbtn:hover { color:var(--text); border-color:var(--subtle); background:var(--hl-low); }
+    .mbtn .mk { font-size:10px; font-weight:700; background:var(--subtle); color:var(--base); padding:0 5px; border-radius:1px; }
+    .mbtn.go { border-color:var(--foam); background:var(--foam); color:var(--base); font-weight:500; }
+    .mbtn.go .mk { background:var(--base); color:var(--foam); }
+    .mbtn.go:hover { filter:brightness(1.06); background:var(--foam); color:var(--base); }
+  </style>
+<style id="embed-tweaks">.meta-strip{display:none!important}html,body{background:#000!important;height:auto!important}body{padding:0!important;align-items:flex-start!important;zoom:0.6;min-height:0!important}</style>
+  <style>@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-variable.woff2') format('woff2')}</style>
+</head>
+<body>
+
+  <div style="width:100%; max-width:1200px;">
+
+    <div class="term-window">
+      <div class="term-chrome">
+        <div class="traffic-lights"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="title-bar">consensus — ~/code/consensus — 168×46</div>
+        <div class="ps1">$ consensus nodes</div>
+      </div>
+
+      <div class="tui" id="tui">
+
+        <!-- Top bar -->
+        <div class="topbar">
+          <div class="brand">
+            <span class="mark"><span class="accent">▲</span> CONSENSUS</span>
+            <span class="bt">your private network, on demand</span>
+          </div>
+          <div class="topbar-right">
+            <span class="seg"><span class="dot ok"></span><span class="v">connected</span></span>
+            <span class="seg"><span class="k">acct</span> <span class="v">bob</span></span>
+            <span class="seg" id="balance-seg"><span class="k">bal</span> <span class="v">$24.18</span></span>
+            <span class="seg"><span class="k">v</span> <span class="v">2.4.1</span></span>
+          </div>
+        </div>
+
+        <!-- Context -->
+        <div class="ctx">
+          <div>
+            <div class="crumbs">
+              <span class="caret">▸</span>
+              <span class="here">Nodes</span>
+            </div>
+            <div class="sub">lease a node to pin all tunnel, proxy &amp; socket traffic to it</div>
+          </div>
+          <div class="meta"><span class="v" id="node-count">148</span> nodes · <span class="v">5</span> regions · refreshed <span class="v">12s ago</span></div>
+        </div>
+
+        <!-- Lease status -->
+        <div class="leasebar none" id="leasebar">
+          <span class="ld"></span>
+          <span class="lt">No lease active — traffic uses <span class="sub">automatic node selection</span></span>
+        </div>
+
+        <!-- Filter -->
+        <div class="filterrow">
+          <span class="chips" id="region-chips">
+            <button class="chip on" data-region="all">all</button>
+            <button class="chip" data-region="us">us</button>
+            <button class="chip" data-region="eu">eu</button>
+            <button class="chip" data-region="ap">ap</button>
+          </span>
+          <span class="sort">sort: <span class="v">score ↓</span></span>
+        </div>
+
+        <!-- Node table -->
+        <div class="box accent">
+          <div class="box-title">Available nodes</div>
+          <table class="ntable">
+            <thead>
+              <tr>
+                <th class="marker"></th>
+                <th>Node</th>
+                <th>Domain</th>
+                <th>Region</th>
+                <th>IP</th>
+                <th class="r">Score</th>
+                <th class="r">Latency</th>
+                <th>Load</th>
+                <th>Caps</th>
+              </tr>
+            </thead>
+            <tbody id="node-body"><!-- rows injected --></tbody>
+          </table>
+          <div class="tbl-foot">
+            <span><span class="kbd">↑↓</span> navigate</span>
+            <span><span class="kbd">↵</span> lease selected</span>
+            <span style="color:var(--hl-high);">·</span>
+            <span>showing <span id="shown-count">8</span> of 148 · pin all proxy/tunnel/ws traffic to this node</span>
+          </div>
+        </div>
+
+        <!-- Key hints -->
+        <div class="keybar">
+          <span><span class="k">↑↓</span>navigate</span>
+          <span><span class="k">↵</span>lease selected</span>
+          <span id="kb-release" style="opacity:0.4;"><span class="k">D</span>release</span>
+          <span><span class="k">/</span>filter</span>
+          <span><span class="k">R</span>refresh</span>
+          <span><span class="k">B</span>back</span>
+          <span class="grow"></span>
+          <span class="right">node browser</span>
+        </div>
+
+      </div>
+
+      <!-- ── Confirm modal ── -->
+      <div class="scrim" id="scrim">
+        <div class="modal" role="dialog" aria-modal="true">
+          <span class="m-title">Lease node</span>
+          <div class="m-body">
+            <div class="m-node" id="m-node">node-a3f1.us-west.consensus</div>
+            <div class="m-region" id="m-region">region us-west-1 · operator canister.software</div>
+            <div class="m-grid">
+              <div class="m-row"><span class="mk">Score</span><span class="mv foam" id="m-score">96/100</span></div>
+              <div class="m-row"><span class="mk">Latency</span><span class="mv foam" id="m-lat">38 ms</span></div>
+              <div class="m-row"><span class="mk">Load</span><span class="mv" id="m-load">28%</span></div>
+              <div class="m-row"><span class="mk">SLA</span><span class="mv" id="m-sla">99.9%</span></div>
+              <div class="m-row"><span class="mk">Caps</span><span class="mv" id="m-caps">http · caching · ipv4 · ipv6</span></div>
+              <div class="m-row"><span class="mk">IP</span><span class="mv" id="m-ip">51.81.44.12</span></div>
+            </div>
+            <div class="m-note" id="m-note">
+              <span class="ni">○</span>
+              <span id="m-note-text">Free mode — traffic on this node costs nothing. Leasing pins every tunnel, proxy and socket you open to this node until you release it.</span>
+            </div>
+          </div>
+          <div class="m-actions">
+            <button class="mbtn" id="m-cancel"><span class="mk">Esc</span> Cancel</button>
+            <button class="mbtn go" id="m-confirm"><span class="mk">↵</span> Lease this node</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="meta-strip">
+      <span><span class="lbl">screen</span>  nodes (browse &amp; lease)</span>
+      <span><span class="lbl">grid</span>  168×46 cells · jetbrains mono</span>
+      <span><span class="lbl">palette</span>  rosé pine</span>
+      <span><span class="lbl">toggle</span>  click a row then ↵ / Lease · use Tweaks for theme / tier</span>
+    </div>
+
+  </div>
+
+  <!-- ── Node data + interaction ───────────────────── -->
+  <script>
+    (function () {
+      const NODES = [
+        { id:'node-a3f1', region:'us-west-1', grp:'us', ip:'51.81.44.12',  score:96, lat:38,  load:28, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4','ipv6'] },
+        { id:'node-b7d2', region:'us-west-1', grp:'us', ip:'51.81.44.51',  score:94, lat:42,  load:34, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
+        { id:'node-c5e9', region:'us-west-1', grp:'us', ip:'51.81.44.88',  score:91, lat:44,  load:41, sla:'99.8%', op:'helios-net',        caps:['http','caching','ipv4','ipv6'] },
+        { id:'node-e8c4', region:'us-east-1', grp:'us', ip:'72.14.201.7',  score:89, lat:52,  load:37, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
+        { id:'node-f2a8', region:'us-east-1', grp:'us', ip:'72.14.201.40', score:86, lat:58,  load:52, sla:'99.7%', op:'eastgate',          caps:['http','ipv4'] },
+        { id:'node-9f01', region:'eu-west-1', grp:'eu', ip:'141.94.22.9',  score:83, lat:88,  load:44, sla:'99.9%', op:'frankfurt-ix',      caps:['http','caching','ipv4','ipv6'] },
+        { id:'node-3d77', region:'eu-west-1', grp:'eu', ip:'141.94.22.61', score:80, lat:94,  load:61, sla:'99.6%', op:'frankfurt-ix',      caps:['http','caching','ipv4'] },
+        { id:'node-1bcd', region:'ap-east-1', grp:'ap', ip:'8.210.55.3',   score:72, lat:142, load:69, sla:'99.5%', op:'pacrim-cloud',      caps:['http','ipv4'] },
+      ];
+      const REGION_COUNT = { all:148, us:80, eu:48, ap:20 };
+
+      const $ = id => document.getElementById(id);
+      const body = $('node-body');
+      let cursor = 0;
+      let filter = 'all';
+      let leasedId = null;
+      let free = false;
+
+      function latClass(ms){ return ms < 60 ? 'ok' : ms < 110 ? 'warn' : 'bad'; }
+      function scoreClass(s){ return s >= 90 ? 'hi' : s >= 80 ? 'mid' : ''; }
+      function capsStr(caps){ return caps.join(' · '); }
+
+      function visibleNodes(){ return NODES.filter(n => filter === 'all' || n.grp === filter); }
+
+      function render() {
+        const list = visibleNodes();
+        if (cursor >= list.length) cursor = list.length - 1;
+        if (cursor < 0) cursor = 0;
+        body.innerHTML = list.map((n, i) => {
+          const sel = i === cursor;
+          const leased = n.id === leasedId;
+          const cls = [sel ? 'sel' : '', leased ? 'leased' : '', n.lat > 130 ? 'dim' : ''].filter(Boolean).join(' ');
+          return `<tr class="${cls}" data-i="${i}">
+            <td class="marker">${sel ? '▶' : leased ? '●' : ''}</td>
+            <td><span class="node-id">${n.id}</span></td>
+            <td class="domain">${n.id}.${n.region.replace(/-1$/,'')}.consensus</td>
+            <td class="region">${n.region}</td>
+            <td class="ip">${n.ip}</td>
+            <td class="r"><span class="score ${scoreClass(n.score)}">${n.score}<span class="slash">/100</span></span></td>
+            <td class="r"><span class="lat ${latClass(n.lat)}">${n.lat} ms</span></td>
+            <td><span class="loadbar"><span class="track"><span class="fill" style="width:${n.load}%;${n.load>70?'background:var(--gold);':''}"></span></span><span class="pct">${n.load}%</span></span></td>
+            <td>${leased ? '<span class="leasetag">● leased</span>' : '<span class="caps">'+capsStr(n.caps)+'</span>'}</td>
+          </tr>`;
+        }).join('');
+        body.querySelectorAll('tr').forEach(tr => {
+          tr.addEventListener('click', () => { cursor = +tr.dataset.i; render(); });
+          tr.addEventListener('dblclick', () => { cursor = +tr.dataset.i; openModal(); });
+        });
+        $('shown-count').textContent = list.length;
+        $('node-count').textContent = REGION_COUNT[filter];
+      }
+
+      function renderLease() {
+        const lb = $('leasebar');
+        const rel = $('kb-release');
+        if (leasedId) {
+          const n = NODES.find(x => x.id === leasedId);
+          lb.className = 'leasebar active';
+          lb.innerHTML = `<span class="ld"></span>
+            <span class="lt"><span class="dom">${n.id}.${n.region.replace(/-1$/,'')}.consensus</span> <span class="sub">· ${n.region} · leased just now</span></span>`
+            + (free ? '<span class="free"><span class="fd"></span>free mode</span>' : '');
+          rel.style.opacity = '1';
+        } else {
+          lb.className = 'leasebar none';
+          lb.innerHTML = `<span class="ld"></span>
+            <span class="lt">No lease active — traffic uses <span class="sub">automatic node selection</span></span>`
+            + (free ? '<span class="free"><span class="fd"></span>free mode</span>' : '');
+          rel.style.opacity = '0.4';
+        }
+      }
+
+      // ── modal ──
+      const scrim = $('scrim');
+      function openModal() {
+        const n = visibleNodes()[cursor];
+        if (!n) return;
+        $('m-node').textContent = `${n.id}.${n.region.replace(/-1$/,'')}.consensus`;
+        $('m-region').textContent = `region ${n.region} · operator ${n.op}`;
+        $('m-score').textContent = `${n.score}/100`;
+        $('m-score').className = 'mv ' + (scoreClass(n.score) === 'hi' ? 'foam' : scoreClass(n.score) === 'mid' ? 'gold' : '');
+        $('m-lat').textContent = `${n.lat} ms`;
+        $('m-load').textContent = `${n.load}%`;
+        $('m-sla').textContent = n.sla;
+        $('m-caps').textContent = capsStr(n.caps);
+        $('m-ip').textContent = n.ip;
+        $('m-note-text').textContent = free
+          ? 'Free mode — traffic on this node costs nothing. Leasing pins every tunnel, proxy and socket you open to this node until you release it.'
+          : 'Leasing is free — you only pay per-traffic at this node\u2019s rates (USDC). It pins every tunnel, proxy and socket you open to this node until you release it.';
+        $('m-note').querySelector('.ni').textContent = free ? '○' : '◆';
+        $('m-note').querySelector('.ni').style.color = free ? 'var(--foam)' : 'var(--gold)';
+        scrim.classList.add('open');
+      }
+      function closeModal() { scrim.classList.remove('open'); }
+      function confirmLease() {
+        const n = visibleNodes()[cursor];
+        if (n) { leasedId = n.id; renderLease(); render(); }
+        closeModal();
+      }
+      function releaseLease() { leasedId = null; renderLease(); render(); }
+
+      $('m-cancel').addEventListener('click', closeModal);
+      $('m-confirm').addEventListener('click', confirmLease);
+      scrim.addEventListener('click', (e) => { if (e.target === scrim) closeModal(); });
+
+      // region filter
+      $('region-chips').querySelectorAll('.chip').forEach(c => {
+        c.addEventListener('click', () => {
+          $('region-chips').querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+          c.classList.add('on'); filter = c.dataset.region; cursor = 0; render();
+        });
+      });
+
+      // keyboard
+      window.addEventListener('keydown', (e) => {
+        const open = scrim.classList.contains('open');
+        if (open) {
+          if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+          if (e.key === 'Enter')  { e.preventDefault(); confirmLease(); }
+          return;
+        }
+        const list = visibleNodes();
+        if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); cursor = Math.min(list.length-1, cursor+1); render(); }
+        else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); cursor = Math.max(0, cursor-1); render(); }
+        else if (e.key === 'Enter') { e.preventDefault(); openModal(); }
+        else if (e.key === 'd' || e.key === 'D') { releaseLease(); }
+      });
+
+      window.__nodes = {
+        setFree(v) { free = v; renderLease();
+          const bal = $('balance-seg');
+          bal.innerHTML = v ? '<span class="k">tier</span> <span class="v">free</span>' : '<span class="k">bal</span> <span class="v">$24.18</span>';
+        }
+      };
+
+      render(); renderLease();
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+# robots.txt — https://docs.consensus.canister.software
+# Full access for all crawlers, including search engines and AI answer/training bots.
+User-agent: *
+Allow: /
+
+Sitemap: https://docs.consensus.canister.software/sitemap-index.xml

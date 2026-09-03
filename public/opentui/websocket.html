@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, follow"/>
+  <title>Consensus · WebSocket Live (opentui-faithful)</title>
+  <style>
+    :root {
+      --base:#191724; --surface:#1f1d2e; --overlay:#26233a;
+      --muted:#6e6a86; --subtle:#908caa; --text:#e0def4;
+      --love:#eb6f92; --gold:#f6c177; --rose:#ebbcba;
+      --pine:#31748f; --foam:#9ccfd8; --iris:#c4a7e7;
+      --hl-low:#21202e; --hl-med:#403d52; --hl-high:#524f67;
+    }
+    :root.dawn {
+      --base:#faf4ed; --surface:#fffaf3; --overlay:#f2e9e1;
+      --muted:#9893a5; --subtle:#797593; --text:#575279;
+      --love:#b4637a; --gold:#ea9d34; --rose:#d7827e;
+      --pine:#286983; --foam:#56949f; --iris:#907aa9;
+      --hl-low:#f4ede8; --hl-med:#dfdad9; --hl-high:#cecacd;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; background:#0f0e16; }
+    html.dawn, html.dawn body { background:#e8e0d6; }
+    body {
+      font-family:'JetBrains Mono', ui-monospace, monospace;
+      color:var(--text); font-size:14px; line-height:1.5;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+
+    .term-window {
+      width:min(1200px,100%); background:#000; border-radius:0;
+      box-shadow:none;
+      overflow:hidden; display:flex; flex-direction:column;
+    }
+    html.dawn .term-window { box-shadow:0 24px 80px rgba(60,50,40,0.28), 0 0 0 1px var(--hl-med); }
+    .term-chrome {
+      display:flex; align-items:center; gap:8px; padding:10px 14px;
+      background:var(--hl-low); border-bottom:1px solid var(--hl-med); font-size:12px; color:var(--subtle);
+    }
+    .traffic-lights { display:flex; gap:6px; margin-right:8px; }
+    .traffic-lights span { width:12px; height:12px; border-radius:50%; display:inline-block; }
+    .traffic-lights .r{background:#ff5f57;} .traffic-lights .y{background:#febc2e;} .traffic-lights .g{background:#28c840;}
+    .term-chrome .title-bar { flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .term-chrome .ps1 { color:var(--muted); white-space:nowrap; }
+    @media (max-width:900px){ .term-chrome .ps1{ display:none; } }
+
+    .tui { background:var(--base); color:var(--text); padding:14px 16px 12px; min-height:740px; display:flex; flex-direction:column; gap:12px; }
+
+    .box { border:1px solid var(--hl-med); position:relative; padding:22px 0 8px; background:transparent; display:flex; flex-direction:column; }
+    .box > .box-title {
+      position:absolute; top:-0.55em; left:12px; background:var(--base); padding:0 6px;
+      font-size:12px; letter-spacing:0.08em; color:var(--subtle); text-transform:uppercase; white-space:nowrap; line-height:1;
+    }
+    .box.accent { border-color:var(--foam); }
+    .box.accent > .box-title { color:var(--foam); }
+
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 4px 6px; border-bottom:1px solid var(--hl-med); }
+    .brand { display:flex; align-items:baseline; gap:14px; }
+    .brand .mark { font-weight:700; letter-spacing:0.18em; color:var(--text); }
+    .brand .mark .accent { color:var(--iris); }
+    .brand .bt { font-size:12px; color:var(--muted); white-space:nowrap; }
+    @media (max-width:1100px){ .brand .bt{ display:none; } }
+    .topbar-right { display:flex; align-items:center; gap:18px; font-size:12px; }
+    .topbar-right .seg { display:flex; align-items:center; gap:6px; color:var(--subtle); }
+    .topbar-right .seg .k { color:var(--muted); }
+    .topbar-right .seg .v { color:var(--text); }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; vertical-align:middle; }
+    .dot.ok { background:var(--foam); box-shadow:0 0 6px var(--foam); }
+
+    /* ── Status bar ──────────────────────────────── */
+    .connbar { display:flex; align-items:center; gap:18px; padding:9px 14px; background:var(--hl-low); border:1px solid var(--hl-med); }
+    .connbar.live { border-color:var(--foam); }
+    .connbar .status { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; letter-spacing:0.06em; color:var(--foam); white-space:nowrap; }
+    .connbar .status .pulse { width:9px; height:9px; border-radius:50%; background:var(--foam); animation:pulse 2s infinite; }
+    @keyframes pulse {
+      0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--foam) 70%, transparent); }
+      70%{ box-shadow:0 0 0 7px color-mix(in srgb, var(--foam) 0%, transparent); }
+      100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--foam) 0%, transparent); }
+    }
+    .connbar .session { flex:1; text-align:center; font-size:13px; color:var(--subtle); white-space:nowrap; }
+    .connbar .session .em { color:var(--text); }
+    .connbar .countdown { font-size:13px; color:var(--subtle); white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .connbar .countdown.warn { color:var(--gold); }
+    .connbar .countdown .k { color:var(--muted); }
+
+    /* ── Messages ────────────────────────────────── */
+    .msgs { flex:1; display:flex; flex-direction:column; min-height:0; }
+    .mtable { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .mtable col.c-time { width:104px; }
+    .mtable col.c-dir  { width:54px; }
+    .mtable col.c-bytes{ width:78px; }
+    .mtable th {
+      text-align:left; font-weight:500; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--muted); padding:3px 12px 6px; border-bottom:1px solid var(--hl-med);
+    }
+    .mtable th.r, .mtable td.r { text-align:right; }
+    .mtable td {
+      padding:4px 12px; font-size:13px; border-bottom:1px dotted var(--hl-low);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums;
+    }
+    .mtable .time { color:var(--muted); }
+    .mtable .dir { font-weight:700; }
+    .mtable .dir.tx { color:var(--foam); }
+    .mtable .dir.rx { color:var(--iris); }
+    .mtable .text { overflow:hidden; text-overflow:ellipsis; }
+    .mtable tr.tx .text { color:var(--subtle); }
+    .mtable tr.rx .text { color:var(--text); }
+    .mtable .bytes { color:var(--muted); text-align:right; }
+    .row-new td { animation:rowin 0.5s ease; }
+    @keyframes rowin { from { background:color-mix(in srgb, var(--iris) 20%, transparent); } to { background:transparent; } }
+    .msg-empty { padding:14px 12px; color:var(--muted); font-size:13px; }
+
+    /* ── Send composer ───────────────────────────── */
+    .composer { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--foam); background:var(--hl-low); }
+    .composer.hidden { display:none; }
+    .composer .prompt { color:var(--foam); font-weight:700; }
+    .composer input {
+      flex:1; background:transparent; border:0; outline:0; color:var(--text);
+      font-family:inherit; font-size:14px; caret-color:var(--iris);
+    }
+    .composer .hint { font-size:11px; color:var(--muted); white-space:nowrap; }
+    .composer .hint .k { color:var(--base); background:var(--subtle); padding:0 5px; border-radius:1px; font-weight:700; }
+
+    /* ── Stats bar ───────────────────────────────── */
+    .statsbar { display:flex; align-items:center; gap:22px; padding:8px 12px; border:1px solid var(--hl-med); font-size:12px; color:var(--subtle); flex-wrap:wrap; }
+    .statsbar .seg { display:flex; align-items:center; gap:7px; }
+    .statsbar .seg .k { color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; font-size:10px; }
+    .statsbar .seg .v { color:var(--text); font-variant-numeric:tabular-nums; }
+    .statsbar .seg .v.foam { color:var(--foam); }
+    .statsbar .grow { flex:1; }
+    .statsbar .databar { display:inline-flex; align-items:center; gap:8px; }
+    .statsbar .databar .track { width:80px; height:6px; background:var(--hl-med); position:relative; overflow:hidden; }
+    .statsbar .databar .fill { position:absolute; inset:0 auto 0 0; background:var(--foam); }
+
+    .keybar { display:flex; gap:18px; padding:8px 4px 0; border-top:1px solid var(--hl-med); font-size:12px; color:var(--subtle); flex-wrap:wrap; align-items:center; }
+    .keybar .k { color:var(--base); background:var(--subtle); padding:0 5px; margin-right:6px; border-radius:1px; font-weight:700; font-size:11px; }
+    .keybar .k.go { background:var(--foam); } .keybar .k.danger { background:var(--love); }
+    .keybar .grow { flex:1; }
+    .keybar .right { color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; }
+
+    .meta-strip { max-width:1200px; margin:14px auto 0; display:flex; gap:18px; flex-wrap:wrap; color:#6b6480; font-size:11px; letter-spacing:0.06em; }
+    html.dawn .meta-strip { color:#8a8197; }
+    .meta-strip .lbl { color:var(--subtle); text-transform:uppercase; letter-spacing:0.14em; }
+  </style>
+<style id="embed-tweaks">.meta-strip{display:none!important}html,body{background:#000!important;height:auto!important}body{padding:0!important;align-items:flex-start!important;zoom:0.6;min-height:0!important}</style>
+  <style>@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-variable.woff2') format('woff2')}</style>
+</head>
+<body>
+
+  <div style="width:100%; max-width:1200px;">
+
+    <div class="term-window">
+      <div class="term-chrome">
+        <div class="traffic-lights"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="title-bar">consensus — ~/code/consensus — 168×42</div>
+        <div class="ps1">$ consensus ws · hybrid 60min 500MB</div>
+      </div>
+
+      <div class="tui" id="tui">
+
+        <!-- Top bar -->
+        <div class="topbar">
+          <div class="brand">
+            <span class="mark"><span class="accent">▲</span> CONSENSUS</span>
+            <span class="bt">your private network, on demand</span>
+          </div>
+          <div class="topbar-right">
+            <span class="seg"><span class="dot ok"></span><span class="v">live</span></span>
+            <span class="seg"><span class="k">acct</span> <span class="v">bob</span></span>
+            <span class="seg" id="balance-seg"><span class="k">bal</span> <span class="v">$24.18</span></span>
+            <span class="seg"><span class="k">v</span> <span class="v">2.4.1</span></span>
+          </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="connbar live">
+          <div class="status"><span class="pulse"></span><span id="conn-state">CONNECTED</span></div>
+          <div class="session"><span class="em" id="sess-model">HYBRID</span> · <span id="sess-dur">60 min</span> · <span id="sess-data">500 MB</span> · node <span class="em">sfo-3</span></div>
+          <div class="countdown"><span class="k">expires</span> <span id="countdown">59:41</span> remaining</div>
+        </div>
+
+        <!-- Messages -->
+        <div class="box accent msgs">
+          <div class="box-title">Messages</div>
+          <table class="mtable">
+            <colgroup><col class="c-time"/><col class="c-dir"/><col/><col class="c-bytes"/></colgroup>
+            <thead>
+              <tr><th>Time</th><th>Dir</th><th>Message</th><th class="r">Bytes</th></tr>
+            </thead>
+            <tbody id="msg-body"></tbody>
+          </table>
+          <div class="msg-empty" id="msg-empty">waiting for messages…</div>
+        </div>
+
+        <!-- Send composer (hidden until S) -->
+        <div class="composer hidden" id="composer">
+          <span class="prompt">▶</span>
+          <input id="send-input" type="text" placeholder="type a message and press ↵ to send…" autocomplete="off" spellcheck="false"/>
+          <span class="hint"><span class="k">↵</span> send &nbsp; <span class="k">esc</span> cancel</span>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="statsbar">
+          <div class="seg databar"><span class="k">data</span>
+            <span class="track"><span class="fill" id="data-fill" style="width:4%;"></span></span>
+            <span class="v" id="data-val">3.1 KB</span><span style="color:var(--muted);">/ 500 MB</span>
+          </div>
+          <div class="seg"><span class="k">rtt</span><span class="v foam" id="rtt-cur">— </span></div>
+          <div class="seg"><span class="k">avg</span><span class="v" id="rtt-avg">—</span></div>
+          <div class="seg"><span class="k">p95</span><span class="v" id="rtt-p95">—</span></div>
+          <div class="seg"><span class="k">msgs</span><span class="v" id="msg-count">0</span></div>
+          <div class="grow"></div>
+          <div class="seg"><span class="k">uptime</span><span class="v" id="uptime">00:00:18</span></div>
+        </div>
+
+        <!-- Key hints -->
+        <div class="keybar">
+          <span><span class="k go">S</span>send</span>
+          <span><span class="k">C</span>clear</span>
+          <span><span class="k danger">Q</span>close session</span>
+          <span class="grow"></span>
+          <span class="right">websocket · live</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="meta-strip">
+      <span><span class="lbl">screen</span>  websocket live (metered socket)</span>
+      <span><span class="lbl">grid</span>  168×42 cells · jetbrains mono</span>
+      <span><span class="lbl">palette</span>  rosé pine</span>
+      <span><span class="lbl">try</span>  press S to compose · type · ↵ to send (server echoes back)</span>
+    </div>
+
+  </div>
+
+  <!-- ── Live socket simulation ────────────────────── -->
+  <script>
+    (function () {
+      const $ = id => document.getElementById(id);
+      const body = $('msg-body');
+      const MAX = 20;
+
+      const SERVER_PUSHES = [
+        'pong', '{"type":"tick","seq":%N,"price":%P}', '{"event":"presence","online":%O}',
+        'ack %N', '{"type":"heartbeat","ts":%T}', '{"channel":"prices","BTC":%P}',
+      ];
+      const AUTO_GREETINGS = [
+        '◀ welcome — socket open, model=hybrid', '{"type":"hello","node":"sfo-3","proto":"x402-ws/1"}',
+      ];
+
+      const state = {
+        startedAt: Date.now() - 18000,
+        expiresMs: 60*60*1000,
+        bytesSent: 0, bytesRecv: 0,
+        latencies: [],
+        msgCount: 0,
+        seq: 1041,
+        free: false,
+      };
+
+      function nowHms(){ const d=new Date(); return [d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':'); }
+      function fmtBytes(b){ if(b>=1048576)return (b/1048576).toFixed(1)+' MB'; if(b>=1024)return (b/1024).toFixed(1)+' KB'; return b+' B'; }
+      function enc(s){ return new TextEncoder().encode(s).length; }
+      function tmpl(s){
+        return s.replace('%N', state.seq).replace('%P', (60000+Math.random()*4000).toFixed(2))
+                .replace('%O', 3+Math.floor(Math.random()*40)).replace('%T', Date.now())
+                .replace('%O', '');
+      }
+
+      function pushMsg(dir, text, isNew) {
+        $('msg-empty').style.display = 'none';
+        const tr = document.createElement('tr');
+        tr.className = (dir === '▶' ? 'tx' : 'rx') + (isNew ? ' row-new' : '');
+        const bytes = enc(text);
+        const disp = text.length > 72 ? text.slice(0,71)+'…' : text;
+        tr.innerHTML =
+          '<td class="time">'+nowHms()+'</td>' +
+          '<td class="dir '+(dir==='▶'?'tx':'rx')+'">'+dir+'</td>' +
+          '<td class="text" title="'+text.replace(/"/g,'&quot;')+'">'+disp+'</td>' +
+          '<td class="bytes">'+bytes+' B</td>';
+        body.insertBefore(tr, body.firstChild);
+        while (body.children.length > MAX) body.removeChild(body.lastChild);
+        state.msgCount++;
+        if (dir === '▶') state.bytesSent += bytes; else state.bytesRecv += bytes;
+        renderStats();
+      }
+
+      function recordRtt(ms){ state.latencies.push(ms); if(state.latencies.length>40) state.latencies.shift(); }
+
+      function renderStats() {
+        const total = state.bytesSent + state.bytesRecv;
+        $('data-val').textContent = fmtBytes(total);
+        $('data-fill').style.width = Math.min(total/(500*1048576)*100, 100).toFixed(2) + '%';
+        $('msg-count').textContent = state.msgCount;
+        const L = state.latencies;
+        if (L.length) {
+          const cur = L[L.length-1];
+          const avg = L.reduce((s,v)=>s+v,0)/L.length;
+          const sorted=[...L].sort((a,b)=>a-b);
+          const p95 = sorted[Math.min(sorted.length-1, Math.ceil(sorted.length*0.95)-1)];
+          $('rtt-cur').textContent = Math.round(cur)+'ms';
+          $('rtt-avg').textContent = Math.round(avg)+'ms';
+          $('rtt-p95').textContent = Math.round(p95)+'ms';
+        }
+      }
+
+      function tickClock() {
+        const up = Date.now() - state.startedAt;
+        $('uptime').textContent = [Math.floor(up/3600000),Math.floor((up%3600000)/60000),Math.floor((up%60000)/1000)].map(n=>String(n).padStart(2,'0')).join(':');
+        const rem = state.expiresMs - up;
+        const s = Math.max(Math.ceil(rem/1000),0);
+        $('countdown').textContent = String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+        $('countdown').parentElement.classList.toggle('warn', rem < 60000);
+      }
+
+      // send flow
+      const composer = $('composer');
+      const input = $('send-input');
+      function openSend(){ composer.classList.remove('hidden'); input.value=''; input.focus(); }
+      function closeSend(){ composer.classList.add('hidden'); input.blur(); }
+      function doSend(){
+        const txt = input.value.trim();
+        if (txt) {
+          state.seq++;
+          pushMsg('▶', txt, true);
+          const sentAt = Date.now();
+          // server echo after RTT
+          setTimeout(() => {
+            recordRtt(Date.now() - sentAt);
+            pushMsg('◀', 'echo: ' + txt, true);
+          }, 30 + Math.random()*120);
+        }
+        closeSend();
+      }
+      input.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') { e.preventDefault(); doSend(); }
+        else if (e.key === 'Escape') { e.preventDefault(); closeSend(); }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (!composer.classList.contains('hidden')) return;
+        if (e.key === 's' || e.key === 'S') { e.preventDefault(); openSend(); }
+        else if (e.key === 'c' || e.key === 'C') { body.innerHTML=''; state.msgCount=0; $('msg-count').textContent='0'; $('msg-empty').style.display=''; }
+      });
+
+      window.__wslive = {
+        setFree(v){ state.free=v;
+          const bal=$('balance-seg');
+          bal.innerHTML = v ? '<span class="k">tier</span> <span class="v">free</span>' : '<span class="k">bal</span> <span class="v">$24.18</span>';
+        },
+      };
+
+      // seed greetings
+      AUTO_GREETINGS.forEach((g,i) => setTimeout(() => pushMsg('◀', g.replace(/^◀ /,''), false), 60+i*40));
+
+      // periodic server pushes
+      (function loop(){
+        setTimeout(() => {
+          const t = tmpl(SERVER_PUSHES[Math.floor(Math.random()*SERVER_PUSHES.length)]);
+          recordRtt(20 + Math.random()*80);
+          pushMsg('◀', t, true);
+          state.seq++;
+          loop();
+        }, 1800 + Math.random()*2600);
+      })();
+
+      tickClock();
+      setInterval(tickClock, 1000);
+      renderStats();
+    })();
+  </script>
+
+</body>
+</html>

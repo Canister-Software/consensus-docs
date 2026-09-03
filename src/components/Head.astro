@@ -31,6 +31,10 @@ const hasTwitterCard = hasMeta('name', 'twitter:card');
 {!hasTwitterImage && <meta name="twitter:image" content={ogImage} />}
 {!hasTwitterCard && <meta name="twitter:card" content="summary_large_image" />}
 
+<!-- Fonts: self-hosted variable woff2 (@font-face lives in src/styles/custom.css) -->
+<link rel="preload" href="/fonts/space-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
+
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" id="os-favicon" />
 

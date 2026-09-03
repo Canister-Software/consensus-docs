@@ -45,7 +45,7 @@ Supporting decisions:
 
 - **Request:** `POST /proxy` with `{ target_url | target_ref, method, headers, body }`.
 - **Response:** `{ status, statusText, data }` by default, or the full `{ status, statusText, headers, data, meta }` (`ProxyResponse`) when the request carries `x-verbose: true`.
-- **Client-controlled headers** that influence routing/caching, all stripped before the upstream call: `x-cache-ttl`, `x-verbose`, `x-api-key`, `x-idempotency-key`, `x-node-region`, `x-node-domain`, `x-node-exclude`.
+- **Client-controlled headers** that influence routing/caching, all stripped before the upstream call: `x-cache-ttl`, `x-verbose`, `x-idempotency-key`, `x-node-region`, `x-node-domain`, `x-node-exclude`. The deprecated `x-api-key` is also stripped, but carries no identity or deduplication behaviour.
 
 ### Node control tunnel
 

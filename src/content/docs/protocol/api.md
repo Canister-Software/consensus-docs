@@ -154,7 +154,7 @@ Routes an outbound HTTP request through the Consensus network. Identical request
 | `x-node-domain` | `string` | Route through a specific node domain |
 | `x-node-exclude` | `string` | Exclude a specific node domain from selection |
 | `x-idempotency-key` | `string` | Manual deduplication key. Auto-generated if omitted |
-| `x-api-key` | `string` | Scopes the deduplication key — requests with different keys never share cache entries |
+| `x-api-key` | `string` | **Deprecated and inert.** Stripped before the upstream call; it no longer scopes the deduplication key or carries any identity. |
 
 **Payment**
 
