@@ -80,7 +80,7 @@ registerExactIcpScheme(client, { signer })
 
 The deduplication key is the core fingerprint that identifies a unique request. It is a SHA-256 hash of the canonicalized request, computed before any payment is checked.
 
-The key is derived from five inputs:
+The key is derived from four inputs:
 
 | Input | How it's canonicalized |
 |---|---|
@@ -88,13 +88,16 @@ The key is derived from five inputs:
 | **URL** | Lowercased scheme and host, default ports removed, query params sorted alphabetically, fragment stripped |
 | **Semantic headers** | Only `accept` and `content-type` are included, lowercased and trimmed |
 | **Body** | SHA-256 hash of the body — JSON objects are deep-sorted before hashing for stability |
-| **Scope** | SHA-256 of the `x-api-key` header value, or `"global"` if absent |
 
-Two requests produce the same deduplication key if and only if all five inputs are equivalent after canonicalization. This means:
+Two requests produce the same deduplication key if and only if all four inputs are equivalent after canonicalization. This means:
 
 - `https://api.example.com/prices?a=1&b=2` and `https://api.example.com/prices?b=2&a=1` produce the **same key**
 - The same JSON body with different key ordering produces the **same key**
-- The same request with different `x-api-key` values produces **different keys** — they never share a cache entry
+- Two callers issuing the same request produce the **same key** and share the cache entry — the scope is always global
+
+:::note[No caller scoping]
+The deduplication scope is global. There is no per-caller namespace: the same canonical request is the same key no matter who sends it, which is what makes deduplication pay off across users. Earlier versions scoped the key by `x-api-key`; that behaviour has been removed, and the header is now stripped without effect. Do not send anything caller-specific in `accept` or `content-type`, the only headers that enter the key.
+:::
 
 The key is computed twice per request: once before the payment check (to serve cache hits for free) and once after payment to store the response.
 
