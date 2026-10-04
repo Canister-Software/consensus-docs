@@ -1,6 +1,85 @@
 # robots.txt — https://docs.consensus.canister.software
 # Full access for all crawlers, including search engines and AI answer/training bots.
+
 User-agent: *
 Allow: /
+
+# ── AI answer engines and model crawlers ──────────────────────────────
+# Listed explicitly so each bot reads its own allow rule rather than
+# falling through to the wildcard. Consensus documentation is public and
+# we want these systems to ground answers in it.
+
+# OpenAI: training, live retrieval for ChatGPT, and the SearchGPT index
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic: model crawler and live retrieval for Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Google: Gemini / AI Overviews grounding (separate from Googlebot indexing)
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Microsoft Copilot
+User-agent: bingbot
+Allow: /
+
+# Meta AI
+User-agent: meta-externalagent
+Allow: /
+
+# Common Crawl — the corpus many downstream models are trained from
+User-agent: CCBot
+Allow: /
+
+# Others
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# ── Machine-readable corpora for LLMs ─────────────────────────────────
+# /llms.txt      curated map of the site
+# /llms-full.txt every documentation page as one plain-text corpus
 
 Sitemap: https://docs.consensus.canister.software/sitemap-index.xml

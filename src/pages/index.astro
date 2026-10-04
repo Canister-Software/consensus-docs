@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Consensus | Tunnels, proxies, and stable IPs</title>
-  <meta name="description" content="A decentralized x402 proxy and WebSocket network. Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402." />
+  <title>Consensus | x402 Tunnels, Proxies, Stable IPs, WebSockets</title>
+  <meta name="description" content="Open HTTP/TCP tunnels, run forward and reverse proxies, lease stable IPs, and meter WebSocket sessions on a decentralized x402 network. No accounts, no API keys." />
 
   <!-- Canonical -->
   <link rel="canonical" href="https://docs.consensus.canister.software/" />
@@ -23,9 +23,10 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Consensus | Tunnels, proxies, and stable IPs" />
+  <meta name="twitter:title" content="Consensus | x402 Tunnels, Proxies, Stable IPs, WebSockets" />
   <meta name="twitter:description" content="Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402. No accounts, no API keys." />
   <meta name="twitter:image" content="https://docs.consensus.canister.software/seo/consensus-protocol-seo-card.png" />
+  <meta name="twitter:image:alt" content="Consensus: a decentralized x402 proxy and WebSocket network" />
 
   <!-- Structured data -->
   <script type="application/ld+json" is:inline>
@@ -45,12 +46,101 @@
         },
         {
           "@type": "SoftwareApplication",
+          "@id": "https://docs.consensus.canister.software/#software",
           "name": "Consensus",
+          "alternateName": "Consensus Protocol",
           "applicationCategory": "DeveloperApplication",
-          "operatingSystem": "Cross-platform",
+          "applicationSubCategory": "Networking, proxy, and tunneling",
+          "operatingSystem": "Cross-platform (Linux, macOS, Windows)",
           "url": "https://docs.consensus.canister.software/",
-          "description": "A decentralized x402 proxy and WebSocket network. Expose local services, route deduplicated HTTP, lease stable IPs, and run metered WebSocket sessions, paid per use over x402.",
-          "publisher": { "@id": "https://docs.consensus.canister.software/#org" }
+          "downloadUrl": "https://www.npmjs.com/package/@canister-software/consensus-cli",
+          "softwareHelp": "https://docs.consensus.canister.software/quickstart/request/",
+          "description": "A decentralized x402 proxy and WebSocket network. Open HTTP/TCP tunnels, run forward and reverse proxies with request deduplication, lease stable IP addresses, and meter WebSocket sessions — paid per use over x402, with no accounts and no API keys.",
+          "keywords": "x402, HTTP tunnel, TCP tunnel, forward proxy, reverse proxy, stable IP, static IP, IP whitelisting, WebSocket, metered WebSocket sessions, request deduplication, decentralized network, pay per request",
+          "featureList": [
+            "HTTP and TCP tunnels that expose a local service on a public HTTPS URL",
+            "Forward proxying for outbound fetch() calls with deduplication and caching",
+            "Reverse proxying in front of your own services at the application level",
+            "Leased stable IPv4 addresses for whitelisted gateways and firewalls",
+            "Prepaid, protocol-metered WebSocket sessions bounded by time and data",
+            "x402 payment on Ethereum, Solana, and the Internet Computer",
+            "No accounts and no API keys; configuration lives in local profiles"
+          ],
+          "programmingLanguage": [
+            "JavaScript",
+            "TypeScript"
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "The CLI and SDK are free; network usage is billed per request over x402."
+          },
+          "publisher": {
+            "@id": "https://docs.consensus.canister.software/#org"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://docs.consensus.canister.software/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is x402?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "x402 is an open payment protocol that revives the HTTP 402 Payment Required status code. A server answers an unpaid request with 402 and a price quote; the client signs a stablecoin payment and retries the same request with the proof attached. Consensus uses x402 for every billable action — a proxied request, a tunnel, an IP lease, a WebSocket session — so there is nothing to sign up for and no API key to rotate."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I expose a localhost server on a public HTTPS URL?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Run consensus tunnel http localhost:3000. The CLI opens an HTTP tunnel through a vetted node and returns a public HTTPS URL that forwards straight to your local port. It covers the same ground as an ngrok or Cloudflare tunnel, without an account, and every request through the tunnel is visible in the terminal in real time."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the difference between the forward proxy and the reverse proxy?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The forward proxy handles traffic leaving your application: wrap fetch() with ProxyClient and outbound calls route through the network, deduplicated and cached. The reverse proxy handles traffic arriving at a service you run, sitting in front of it and forwarding requests in. Both run at the application level in your own JavaScript or TypeScript process, so HTTPS is never decrypted."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I get a static IP address for API whitelisting?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Run consensus ip list to see verified nodes with their regions and health scores, then lease one. Traffic is pinned to that node's static IPv4 address, so you whitelist the IP once with an upstream provider and every tunnel, proxy request, and WebSocket from your app arrives from the same address."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How are WebSocket sessions metered and paid for?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A client prepays a bounded session with a single x402 payment, specifying minutes, megabytes, or both. The protocol meters the persistent WebSocket connection as it runs and closes it cleanly once the budget is spent. Nothing is billed after the fact and no balance is held on your behalf."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I need an account or an API key?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. There is no signup, no dashboard, and no key to rotate. Configuration lives in local profiles on your machine and authorization is the x402 payment attached to each request. Payment settles on Ethereum, Solana, or the Internet Computer through the Consensus facilitator."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Who runs the nodes, and can I run one?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Anyone with a qualifying machine can run a node, and admission is permissionless but not automatic. A node clears a baseline of cores, memory, storage, and bandwidth, then passes a live stress test measuring encryption speed, sustained throughput, responsiveness, and packet loss. A heartbeat every five minutes keeps only healthy nodes in rotation, and the network re-tests nodes during their downtime."
+              }
+            }
+          ]
         }
       ]
     }
@@ -69,6 +159,12 @@
     a{color:inherit}
     @keyframes cs-pulse{0%{box-shadow:0 0 0 0 rgba(2,113,235,0.55)}70%{box-shadow:0 0 0 7px rgba(2,113,235,0)}100%{box-shadow:0 0 0 0 rgba(2,113,235,0)}}
     @keyframes cs-spin{to{transform:rotate(360deg)}}
+    /* FAQ disclosure: hide native markers, rotate the + into an x when open */
+    summary::-webkit-details-marker{display:none}
+    summary::marker{content:''}
+    details[open] > summary span[aria-hidden]{transform:rotate(45deg)}
+    details summary span[aria-hidden]{transition:transform .2s ease}
+    details summary:hover{opacity:0.85}
 
     /* ── Responsive: tablets & phones ── */
     @media (max-width:820px){
@@ -115,7 +211,7 @@
       </a>
       <div style="display:flex;align-items:center;gap:24px;margin-left:14px;font-size:14px;color:rgba(255,255,255,0.62)">
         <a href="#build" data-navlink="build" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Build</a>
-        <a href="/guides/node/" data-navlink="node" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Run a node</a>
+        <a href="/join/" data-navlink="node" style="text-decoration:none;opacity:0;pointer-events:none;transition:opacity .4s ease">Run a node</a>
       </div>
       <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
         <a href="https://github.com/demali-876/consensus" style="text-decoration:none;font-size:14px;color:rgba(255,255,255,0.62)">GitHub</a>
@@ -129,7 +225,7 @@
     </nav>
     <div id="mobile-menu" style="display:none;flex-direction:column;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,0.07)">
       <a href="#build" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">Build</a>
-      <a href="/guides/node/" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">Run a node</a>
+      <a href="/join/" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">Run a node</a>
       <a href="https://github.com/demali-876/consensus" style="text-decoration:none;color:rgba(255,255,255,0.85);font-size:16px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">GitHub</a>
       <a href="/quickstart/request/" style="text-decoration:none;color:#000;background:#fff;font-weight:600;font-size:16px;text-align:center;padding:14px 24px;margin:14px 24px 18px;border-radius:10px">Read the docs</a>
     </div>
@@ -145,7 +241,7 @@
         <span style="display:block;white-space:nowrap">Tunnels, proxies, and stable IPs.</span>
         <span style="display:block;color:rgba(255,255,255,0.4)">No accounts. No API keys.</span>
       </h1>
-      <p data-reveal data-reveal-delay="140" style="margin:32px 0 0;font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:rgba(255,255,255,0.6);max-width:62ch">Expose local HTTP/TCP services, route traffic via forward/reverse proxies, and instantly get stable IPs for whitelisted gateways.</p>
+      <p data-reveal data-reveal-delay="140" style="margin:32px 0 0;font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:rgba(255,255,255,0.6);max-width:62ch">Open HTTP/TCP tunnels to local services, route outbound traffic through forward and reverse proxies, lease stable IP addresses for whitelisted gateways, and run metered WebSocket sessions — paid per request over x402.</p>
       <div data-reveal data-reveal-delay="300" style="margin-top:34px;display:inline-flex;align-items:center;gap:0;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;font-family:'JetBrains Mono',monospace;max-width:100%">
         <span style="padding:14px 12px 14px 18px;color:rgba(255,255,255,0.32);font-size:14px;user-select:none">$</span>
         <code style="padding:14px 18px 14px 0;font-size:14px;color:rgba(255,255,255,0.9);white-space:nowrap;overflow-x:auto">npm i @canister-software/consensus-cli</code>
@@ -183,7 +279,7 @@
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">One command to Live</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Put a local port or device on a public HTTPS URL in seconds. No signup, monitor every request in real time.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">An HTTP tunnel puts a local port or device on a public HTTPS URL in seconds — the same job as an ngrok or Cloudflare tunnel, without the account. No signup, monitor every request in real time.</p>
         </div>
       </div>
     </div>
@@ -193,7 +289,7 @@
       <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap">
         <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.32)">02</span>
         <h3 style="margin:0;font-size:clamp(19px,2.3vw,27px);font-weight:600;letter-spacing:-0.01em;line-height:1.12">
-          <span style="color:#fff">PROXIES</span><span style="color:rgba(255,255,255,0.4)">: Wrap fetch(). Ship secured.</span>
+          <span style="color:#fff">PROXIES</span><span style="color:rgba(255,255,255,0.4)">: Forward and reverse proxying. Wrap fetch(), ship secured.</span>
         </h3>
       </div>
       <div style="background:transparent">
@@ -214,7 +310,7 @@
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Drop-in SDK</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Wrap fetch() once and every outbound call routes through Consensus: protected, deduplicated, cached, and metered per request. Existing route handlers stay untouched.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Wrap fetch() once and every outbound call routes through the Consensus proxy: protected, deduplicated, cached, and metered per request over x402. Works as a forward proxy for outbound calls and a reverse proxy in front of your own services. Existing route handlers stay untouched.</p>
         </div>
       </div>
     </div>
@@ -224,7 +320,7 @@
       <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap">
         <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.32)">03</span>
         <h3 style="margin:0;font-size:clamp(19px,2.3vw,27px);font-weight:600;letter-spacing:-0.01em;line-height:1.12">
-          <span style="color:#fff">STABLE IPs</span><span style="color:rgba(255,255,255,0.4)">: Verify and pin traffic to a static IP</span>
+          <span style="color:#fff">STABLE IPs</span><span style="color:rgba(255,255,255,0.4)">: Verify and pin traffic to a static IP address</span>
         </h3>
       </div>
       <div style="background:transparent">
@@ -241,7 +337,7 @@ NODE ID   DOMAIN                                     REGION   SCORE
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Pin the IP</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Lease a verified, performant node and pin every tunnel, proxy, and socket to one static IP. Whitelist once, reconnect automatically, stop fighting dynamic firewalls.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Lease a verified, performant node and pin every tunnel, proxy, and WebSocket to one static IP address. Whitelist the IP once with an upstream API, reconnect automatically, and stop fighting dynamic firewalls.</p>
         </div>
       </div>
     </div>
@@ -251,7 +347,7 @@ NODE ID   DOMAIN                                     REGION   SCORE
       <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap">
         <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.32)">04</span>
         <h3 style="margin:0;font-size:clamp(19px,2.3vw,27px);font-weight:600;letter-spacing:-0.01em;line-height:1.12">
-          <span style="color:#fff">WEBSOCKETS</span><span style="color:rgba(255,255,255,0.4)">: Prepaid, metered sessions for stateless apps</span>
+          <span style="color:#fff">WEBSOCKETS</span><span style="color:rgba(255,255,255,0.4)">: Prepaid, metered WebSocket sessions for stateless apps</span>
         </h3>
       </div>
       <div style="background:transparent">
@@ -273,7 +369,7 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
         </div>
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px">Prepaid &amp; metered</div>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Prepay time, data, or both. Each persistent session is metered by the protocol and closed cleanly once the budget runs out. No accounts, no state.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6)">Prepay time, data, or both with a single x402 payment. Each persistent WebSocket session is metered by the protocol and closed cleanly once the budget runs out. No accounts, no state.</p>
         </div>
       </div>
     </div>
@@ -363,6 +459,64 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
     </div>
   </section>
 
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" style="border-top:1px solid rgba(255,255,255,0.07)">
+    <div style="max-width:1000px;margin:0 auto;padding:96px 28px">
+      <div data-reveal style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">Common questions</div>
+      <h2 data-reveal data-reveal-delay="60" style="margin:0 0 40px;font-size:clamp(28px,3.6vw,42px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:22ch">Tunnels, proxies, IPs, and sockets — answered.</h2>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">What is x402?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">x402 is an open payment protocol that revives the HTTP 402 Payment Required status code. A server answers an unpaid request with 402 and a price quote; the client signs a stablecoin payment and retries the same request with the proof attached. Consensus uses x402 for every billable action — a proxied request, a tunnel, an IP lease, a WebSocket session — so there is nothing to sign up for and no API key to rotate.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">How do I expose a localhost server on a public HTTPS URL?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">Run <code style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.9)">consensus tunnel http localhost:3000</code>. The CLI opens an HTTP tunnel through a vetted node and returns a public HTTPS URL that forwards straight to your local port. It covers the same ground as an ngrok or Cloudflare tunnel, without an account, and every request through the tunnel is visible in the terminal in real time.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">What is the difference between the forward proxy and the reverse proxy?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">The forward proxy handles traffic leaving your application: wrap <code style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.9)">fetch()</code> with ProxyClient and outbound calls route through the network, deduplicated and cached. The reverse proxy handles traffic arriving at a service you run, sitting in front of it and forwarding requests in. Both run at the application level in your own JavaScript or TypeScript process, so HTTPS is never decrypted.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">How do I get a static IP address for API whitelisting?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">Run <code style="font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.9)">consensus ip list</code> to see verified nodes with their regions and health scores, then lease one. Traffic is pinned to that node's static IPv4 address, so you whitelist the IP once with an upstream provider and every tunnel, proxy request, and WebSocket from your app arrives from the same address.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">How are WebSocket sessions metered and paid for?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">A client prepays a bounded session with a single x402 payment, specifying minutes, megabytes, or both. The protocol meters the persistent WebSocket connection as it runs and closes it cleanly once the budget is spent. Nothing is billed after the fact and no balance is held on your behalf.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">Do I need an account or an API key?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">No. There is no signup, no dashboard, and no key to rotate. Configuration lives in local profiles on your machine and authorization is the x402 payment attached to each request. Payment settles on Ethereum, Solana, or the Internet Computer through the Consensus facilitator.</p>
+      </details>
+      <details data-reveal style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(16px,1.7vw,19px);font-weight:600;letter-spacing:-0.01em;color:#fff">
+          <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">Who runs the nodes, and can I run one?</h3>
+          <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4);transition:transform .2s ease">+</span>
+        </summary>
+        <p style="margin:0;padding:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.6);max-width:78ch">Anyone with a qualifying machine can run a node, and admission is permissionless but not automatic. A node clears a baseline of cores, memory, storage, and bandwidth, then passes a live stress test measuring encryption speed, sustained throughput, responsiveness, and packet loss. A heartbeat every five minutes keeps only healthy nodes in rotation, and the network re-tests nodes during their downtime.</p>
+      </details>
+    </div>
+  </section>
+
   <!-- ============ BOTTOM ANCHOR CTA (final loop) ============ -->
   <section id="node" style="position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,0.07)">
     <img src="/logo-light.svg" alt="" aria-hidden="true" style="position:absolute;bottom:-220px;left:-180px;width:560px;height:560px;opacity:0.045;animation:cs-spin 160s linear infinite reverse;pointer-events:none" />
@@ -379,7 +533,7 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
         </button>
       </div>
 
-      <p data-reveal data-reveal-delay="220" style="margin:32px 0 0;font-size:16px;line-height:1.6;color:rgba(255,255,255,0.55)">Looking to host infrastructure? <a href="/guides/node/" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:1px">Join the network as a node operator →</a></p>
+      <p data-reveal data-reveal-delay="220" style="margin:32px 0 0;font-size:16px;line-height:1.6;color:rgba(255,255,255,0.55)">Looking to host infrastructure? <a href="/join/" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:1px">Join the network as a node operator →</a></p>
     </div>
   </section>
 
@@ -405,7 +559,8 @@ session.on(<span style="color:rgba(255,255,255,0.62)">'message'</span>, (m) => c
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px">Network</div>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
-          <a href="/guides/node/" style="text-decoration:none">Run a node</a>
+          <a href="/join/" style="text-decoration:none">Run a node</a>
+          <a href="/guides/node/" style="text-decoration:none">Node setup guide</a>
           <a href="/facilitator/overview/" style="text-decoration:none">Facilitator</a>
         </div>
       </div>

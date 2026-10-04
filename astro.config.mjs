@@ -16,7 +16,7 @@ export default defineConfig({
 					item.priority = 1.0;
 				}
 				// Node-operator + quickstart funnels: slight boost
-				else if (/\/(guides\/node|quickstart)\//.test(item.url)) {
+				else if (/\/(join|guides\/node|quickstart)\//.test(item.url)) {
 					item.priority = 0.9;
 				}
 				return item;
