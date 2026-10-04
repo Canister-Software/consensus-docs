@@ -24,7 +24,9 @@ export default defineConfig({
 		}),
 		starlight({
 			title: 'Consensus Docs',
-			
+			// src/pages/404.astro replaces Starlight's built-in 404 page
+			disable404Route: true,
+
 			logo: {
 				dark: './src/assets/logo-light.svg',
 				light: './src/assets/logo-dark.svg',

@@ -6,8 +6,4 @@ export const HANDMADE_CARDS: Record<string, string> = {
 	'protocol/info': '/seo/consensus-what-is-consensus-card.png',
 };
 
-// Fallback for Starlight routes that are not docs pages (e.g. the 404 page).
-export const DEFAULT_CARD = '/consensus-docs.png';
-
-export const ogImagePath = (id: string): string =>
-	HANDMADE_CARDS[id] ?? (id === '404' || id === '' ? DEFAULT_CARD : `/og/${id}.png`);
+export const ogImagePath = (id: string): string => HANDMADE_CARDS[id] ?? `/og/${id}.png`;
