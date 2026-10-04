@@ -3,6 +3,9 @@ dist/
 # generated types
 .astro/
 
+# Claude Code agent worktrees / local config
+.claude/
+
 # dependencies
 node_modules/
 
@@ -21,3 +24,4 @@ data/whitepaper-signups.json
 # macOS-specific files
 .DS_Store
 .vscode
+.review/

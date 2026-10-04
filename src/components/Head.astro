@@ -1,12 +1,13 @@
 ---
 import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+import { ogImagePath } from '../og';
 
-const { head } = Astro.locals.starlightRoute;
+const { head, id } = Astro.locals.starlightRoute;
 type HeadEntry = StarlightRouteData['head'][number];
 
-const ogImage = Astro.site
-  ? new URL('/consensus-docs.png', Astro.site).href
-  : '/consensus-docs.png';
+// Hand-made card, else the build-time generated one (see src/og.ts)
+const ogPath = ogImagePath(id);
+const ogImage = Astro.site ? new URL(ogPath, Astro.site).href : ogPath;
 
 const hasMeta = (key: 'name' | 'property' | 'http-equiv', value: string) =>
   head.some((entry: HeadEntry) => entry.tag === 'meta' && entry.attrs?.[key] === value);
@@ -26,10 +27,14 @@ const hasTwitterCard = hasMeta('name', 'twitter:card');
 }
 
 {!hasOgImage && <meta property="og:image" content={ogImage} />}
-{!hasOgImageWidth && <meta property="og:image:width" content="1200" />}
-{!hasOgImageHeight && <meta property="og:image:height" content="630" />}
+{!hasOgImageWidth && <meta property="og:image:width" content="2400" />}
+{!hasOgImageHeight && <meta property="og:image:height" content="1260" />}
 {!hasTwitterImage && <meta name="twitter:image" content={ogImage} />}
 {!hasTwitterCard && <meta name="twitter:card" content="summary_large_image" />}
+
+<!-- Fonts: self-hosted variable woff2 (@font-face lives in src/styles/custom.css) -->
+<link rel="preload" href="/fonts/space-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" id="os-favicon" />

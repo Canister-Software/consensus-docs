@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Consensus · Tunnel Setup (opentui-faithful)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Rosé Pine (canonical) ─────────────────────────── */
+    :root {
+      --base:    #191724;
+      --surface: #1f1d2e;
+      --overlay: #26233a;
+      --muted:   #6e6a86;
+      --subtle:  #908caa;
+      --text:    #e0def4;
+      --love:    #eb6f92;
+      --gold:    #f6c177;
+      --rose:    #ebbcba;
+      --pine:    #31748f;
+      --foam:    #9ccfd8;
+      --iris:    #c4a7e7;
+      --hl-low:  #21202e;
+      --hl-med:  #403d52;
+      --hl-high: #524f67;
+    }
+    :root.dawn {
+      --base:    #faf4ed;
+      --surface: #fffaf3;
+      --overlay: #f2e9e1;
+      --muted:   #9893a5;
+      --subtle:  #797593;
+      --text:    #575279;
+      --love:    #b4637a;
+      --gold:    #ea9d34;
+      --rose:    #d7827e;
+      --pine:    #286983;
+      --foam:    #56949f;
+      --iris:    #907aa9;
+      --hl-low:  #f4ede8;
+      --hl-med:  #dfdad9;
+      --hl-high: #cecacd;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin:0; padding:0; height:100%; background: #0f0e16; }
+    html.dawn, html.dawn body { background: #e8e0d6; }
+    body {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Terminal frame (chrome only — not part of opentui) ─ */
+    .term-window {
+      width: min(1200px, 100%);
+      background: var(--base);
+      border-radius: 6px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.04) inset;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    html.dawn .term-window { box-shadow: 0 24px 80px rgba(60,50,40,0.28), 0 0 0 1px var(--hl-med); }
+    .term-chrome {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      background: var(--hl-low);
+      border-bottom: 1px solid var(--hl-med);
+      font-size: 12px;
+      color: var(--subtle);
+    }
+    .traffic { display: flex; gap: 6px; margin-right: 8px; }
+    .traffic span { width: 12px; height: 12px; border-radius: 50%; display:inline-block; }
+    .traffic .r { background: #ff5f57; }
+    .traffic .y { background: #febc2e; }
+    .traffic .g { background: #28c840; }
+    .term-chrome .title-bar { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .term-chrome .ps1 { color: var(--muted); white-space: nowrap; }
+    @media (max-width: 900px) {
+      .term-chrome .ps1 { display: none; }
+    }
+
+    /* ── opentui surface ──────────────────────────── */
+    .tui {
+      background: var(--base);
+      color: var(--text);
+      padding: 14px 16px 12px;
+      min-height: 740px;
+      display: flex; flex-direction: column;
+      gap: 12px;
+    }
+
+    /* a Box in opentui = bordered region with title in top border */
+    .box {
+      border: 1px solid var(--hl-med);
+      border-radius: 0;
+      position: relative;
+      padding: 22px 14px 12px;
+      background: transparent;
+      display: flex; flex-direction: column;
+    }
+    .box > .box-title {
+      position: absolute;
+      top: -0.55em;
+      left: 12px;
+      background: var(--base);
+      padding: 0 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--subtle);
+      text-transform: uppercase;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .box.accent { border-color: var(--foam); }
+    .box.accent > .box-title { color: var(--foam); }
+
+    /* ── Top brand bar ────────────────────────────── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4px 6px;
+      border-bottom: 1px solid var(--hl-med);
+    }
+    .brand { display: flex; align-items: baseline; gap: 14px; }
+    .brand .mark {
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--text);
+    }
+    .brand .mark .accent { color: var(--iris); }
+    .brand .tag {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    @media (max-width: 1100px) {
+      .brand .tag { display: none; }
+    }
+    .topbar-right {
+      display: flex; align-items: center; gap: 18px;
+      font-size: 12px;
+    }
+    .topbar-right .seg { display: flex; align-items: center; gap: 6px; color: var(--subtle); }
+    .topbar-right .seg .k { color: var(--muted); }
+    .topbar-right .seg .v { color: var(--text); }
+    .dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      vertical-align: middle;
+    }
+    .dot.ok   { background: var(--foam); box-shadow: 0 0 6px var(--foam); }
+    .dot.warn { background: var(--gold); }
+
+    /* ── Context / step row ───────────────────────── */
+    .ctx {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 18px;
+      padding: 0 2px;
+    }
+    .ctx .crumbs {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 13px; color: var(--subtle);
+    }
+    .ctx .crumbs .here { color: var(--text); }
+    .ctx .crumbs .sep { color: var(--muted); }
+    .ctx .crumbs .caret { color: var(--iris); }
+    .ctx .sub { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 0.02em; }
+
+    /* protocol segmented toggle */
+    .proto {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 12px; color: var(--muted);
+    }
+    .proto .lbl { letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .seg {
+      display: inline-flex; border: 1px solid var(--hl-med);
+    }
+    .seg button {
+      font-family: inherit; font-size: 13px;
+      background: transparent; color: var(--subtle);
+      border: 0; padding: 4px 16px; cursor: pointer;
+      letter-spacing: 0.06em;
+    }
+    .seg button + button { border-left: 1px solid var(--hl-med); }
+    .seg button.on { background: var(--iris); color: var(--base); font-weight: 500; }
+    .seg button:not(.on):hover { color: var(--text); background: var(--hl-low); }
+
+    /* ── Two-panel pick row ───────────────────────── */
+    .pick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.55fr;
+      gap: 12px;
+    }
+    @media (max-width: 1000px) {
+      .pick-grid { grid-template-columns: 1fr; }
+    }
+    .box.panel { padding: 22px 12px 10px; }
+
+    /* pick tables */
+    .ptable { width: 100%; border-collapse: collapse; }
+    .ptable th {
+      text-align: left; font-weight: 500;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted);
+      padding: 2px 8px 7px;
+      border-bottom: 1px solid var(--hl-med);
+    }
+    .ptable td {
+      padding: 6px 8px;
+      font-size: 13px; color: var(--text);
+      border-bottom: 1px dotted var(--hl-low);
+      white-space: nowrap;
+    }
+    .ptable tr:last-child td { border-bottom: 0; }
+    .ptable tr.sel td {
+      background: var(--hl-low);
+      box-shadow: inset 2px 0 0 var(--iris);
+    }
+    .ptable tr.dim td { color: var(--muted); }
+    .ptable .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; padding: 0 4px;
+      font-size: 11px; font-weight: 700;
+      color: var(--subtle); border: 1px solid var(--hl-med);
+      border-radius: 2px;
+    }
+    .ptable tr.sel .num { background: var(--iris); color: var(--base); border-color: var(--iris); }
+    .ptable .proc { color: var(--text); }
+    .ptable .proc.sys { color: var(--muted); }
+    .ptable .ip   { color: var(--subtle); font-variant-numeric: tabular-nums; }
+    .ptable .host { color: var(--text); }
+    .ptable .ports { color: var(--foam); }
+    .ptable .ports.none { color: var(--muted); }
+    .ptable .dash { color: var(--muted); }
+    .panel-note {
+      font-size: 11px; color: var(--muted);
+      padding: 8px 8px 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel-note .kbd, .kbd {
+      font-size: 11px; color: var(--base); background: var(--subtle);
+      padding: 0 5px; border-radius: 1px; font-weight: 700;
+    }
+    .panel-empty { padding: 14px 8px; color: var(--muted); font-size: 13px; }
+
+    /* ── Target composer ──────────────────────────── */
+    .compose {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 1000px) { .compose { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field .f-row { display: flex; align-items: center; gap: 12px; }
+    .field .f-label {
+      width: 64px; flex: none;
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .input {
+      flex: 1; min-width: 0;
+      display: flex; align-items: center;
+      border: 1px solid var(--hl-med);
+      padding: 6px 10px;
+      background: var(--hl-low);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .input.active { border-color: var(--iris); box-shadow: inset 0 0 0 1px var(--iris); }
+    .input .val { color: var(--text); }
+    .input .ph  { color: var(--muted); }
+    .input.short { flex: none; width: 132px; }
+    .field .f-hint { font-size: 11px; color: var(--muted); padding-left: 76px; }
+    .caret {
+      display: inline-block; width: 8px; height: 1.05em;
+      background: var(--iris); margin-left: 1px;
+      transform: translateY(2px);
+      animation: blink 1.05s steps(1) infinite;
+    }
+    @keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
+
+    .preview-box {
+      display: flex; flex-direction: column; gap: 10px;
+      justify-content: center;
+    }
+    .preview-box .pv-label {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    }
+    .preview-box .pv-url {
+      font-size: 15px; color: var(--foam); font-weight: 500;
+      word-break: break-all;
+    }
+    .preview-box .pv-map {
+      font-size: 12px; color: var(--subtle);
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .preview-box .pv-map .arrow { color: var(--muted); }
+    .preview-box .pv-map .tgt { color: var(--text); }
+    .start-row { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+    .btn-start {
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--foam); color: var(--base); background: var(--foam);
+      padding: 6px 18px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-start .k { background: var(--base); color: var(--foam); padding: 0 5px; border-radius: 1px; font-weight: 700; font-size: 11px; }
+    .btn-start:hover { filter: brightness(1.06); }
+    .compose-foot { font-size: 11px; color: var(--muted); }
+
+    .validation {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--love);
+      min-height: 18px;
+    }
+    .validation.ok { color: transparent; }
+
+    /* ── Bookmarks ────────────────────────────────── */
+    .sec-h {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .sec-h::after { content: ''; flex: 1; border-top: 1px dashed var(--hl-med); }
+    .sec-h .actions { letter-spacing: 0.04em; text-transform: none; }
+    .bookmarks { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+    .bm-row {
+      display: grid;
+      grid-template-columns: 22px 1.3fr 50px 1.4fr 72px;
+      column-gap: 14px; align-items: center;
+      font-size: 13px; color: var(--subtle);
+      padding: 3px 4px;
+    }
+    .bm-row:hover { background: var(--hl-low); color: var(--text); }
+    .bm-row .bnum {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; font-size: 11px; font-weight: 700;
+      color: var(--subtle); border: 1px solid var(--hl-med); border-radius: 2px;
+    }
+    .bm-row .blabel { color: var(--text); }
+    .bm-row .bproto { color: var(--iris); }
+    .bm-row .btgt { color: var(--subtle); font-variant-numeric: tabular-nums; }
+    .bm-row .bage { color: var(--muted); text-align: right; font-size: 11px; }
+
+    /* ── Footer key hints ─────────────────────────── */
+    .keybar {
+      display: flex; gap: 18px;
+      padding: 8px 4px 0;
+      border-top: 1px solid var(--hl-med);
+      font-size: 12px; color: var(--subtle);
+      flex-wrap: wrap; align-items: center;
+    }
+    .keybar .k {
+      color: var(--base); background: var(--subtle);
+      padding: 0 5px; margin-right: 6px; border-radius: 1px;
+      font-weight: 700; font-size: 11px;
+    }
+    .keybar .grow { flex: 1; }
+    .keybar .right { color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    /* annotation strip beneath terminal */
+    .meta-strip {
+      max-width: 1200px;
+      margin: 14px auto 0;
+      display: flex; gap: 18px; flex-wrap: wrap;
+      color: #6b6480;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.06em;
+    }
+    html.dawn .meta-strip { color: #8a8197; }
+    .meta-strip .lbl { color: var(--subtle); text-transform: uppercase; letter-spacing: 0.14em; }
+  </style>
+<style id="embed-tweaks">.meta-strip{display:none!important}#tweaks-root{display:none!important}html,body{background:#000!important;height:auto!important}body{padding:0!important;align-items:flex-start!important;zoom:0.6;min-height:0!important}</style>
+</head>
+<body>
+
+  <div style="width: 100%; max-width: 1200px;">
+
+    <div class="term-window">
+      <div class="term-chrome">
+        <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="title-bar">consensus — ~/code/consensus — 168×42</div>
+        <div class="ps1">$ consensus tunnel</div>
+      </div>
+
+      <div class="tui" id="tui">
+
+        <!-- Top bar: brand + connection status -->
+        <div class="topbar">
+          <div class="brand">
+            <span class="mark"><span class="accent">▲</span> CONSENSUS</span>
+            <span class="tag">your private network, on demand</span>
+          </div>
+          <div class="topbar-right">
+            <span class="seg"><span class="dot ok"></span><span class="v">connected</span></span>
+            <span class="seg"><span class="k">acct</span> <span class="v">bob</span></span>
+            <span class="seg" id="balance-seg"><span class="k">bal</span> <span class="v">$24.18</span></span>
+            <span class="seg"><span class="k">v</span> <span class="v">2.4.1</span></span>
+          </div>
+        </div>
+
+        <!-- Context / step row -->
+        <div class="ctx">
+          <div>
+            <div class="crumbs">
+              <span class="caret">▸</span>
+              <span>Tunnels</span><span class="sep">/</span><span class="here">New tunnel</span>
+            </div>
+            <div class="sub">pick a local process or LAN device — we'll mint the public URL</div>
+          </div>
+          <div class="proto">
+            <span class="lbl">Protocol</span>
+            <div class="seg" id="proto-seg">
+              <button class="on" data-proto="http">HTTP</button>
+              <button data-proto="tcp">TCP</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-panel pick row -->
+        <div class="pick-grid">
+
+          <!-- LOCAL PROCESSES -->
+          <div class="box panel">
+            <div class="box-title">Local processes</div>
+            <table class="ptable" id="local-table">
+              <thead>
+                <tr>
+                  <th style="width: 28px;">#</th>
+                  <th style="width: 64px;">Port</th>
+                  <th>Process</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="sel">
+                  <td><span class="num">1</span></td>
+                  <td>:3000</td>
+                  <td><span class="proc">node · my-api</span></td>
+                </tr>
+                <tr>
+                  <td><span class="num">2</span></td>
+                  <td>:5173</td>
+                  <td><span class="proc">vite</span></td>
+                </tr>
+                <tr>
+                  <td><span class="num">3</span></td>
+                  <td>:8000</td>
+                  <td><span class="proc">python -m http</span></td>
+                </tr>
+                <tr class="dim">
+                  <td><span class="dash">—</span></td>
+                  <td>:5432</td>
+                  <td><span class="proc sys">postgres · system</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="panel-note"><span class="kbd">R</span> rescan local · 4 ports</div>
+          </div>
+
+          <!-- LAN DEVICES -->
+          <div class="box panel">
+            <div class="box-title">LAN devices</div>
+            <table class="ptable" id="lan-table">
+              <thead>
+                <tr>
+                  <th style="width: 28px;">#</th>
+                  <th style="width: 132px;">IP</th>
+                  <th>Host</th>
+                  <th style="width: 100px;">Ports</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="num">4</span></td>
+                  <td><span class="ip">192.168.1.1</span></td>
+                  <td><span class="host">gateway</span></td>
+                  <td><span class="ports">:80, :443</span></td>
+                </tr>
+                <tr>
+                  <td><span class="num">5</span></td>
+                  <td><span class="ip">192.168.1.66</span></td>
+                  <td><span class="host">esp32-sensor</span></td>
+                  <td><span class="ports">:80</span></td>
+                </tr>
+                <tr>
+                  <td><span class="num">6</span></td>
+                  <td><span class="ip">192.168.1.42</span></td>
+                  <td><span class="host">pi-camera</span></td>
+                  <td><span class="ports">:8554</span></td>
+                </tr>
+                <tr>
+                  <td><span class="num">7</span></td>
+                  <td><span class="ip">192.168.1.55</span></td>
+                  <td><span class="host">homelab-ha</span></td>
+                  <td><span class="ports">:8123</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="panel-note">
+              <span>3 devices hidden</span>
+              <span><span class="kbd">A</span> show all</span>
+              <span style="color: var(--hl-high);">·</span>
+              <span><span class="kbd">L</span> rescan LAN</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Target composer -->
+        <div class="box accent">
+          <div class="box-title">Target</div>
+          <div class="compose">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div class="field">
+                <div class="f-row">
+                  <span class="f-label">Target</span>
+                  <span class="input active"><span class="val">localhost</span><span class="caret"></span></span>
+                </div>
+                <div class="f-hint">IP address or hostname</div>
+              </div>
+              <div class="field">
+                <div class="f-row">
+                  <span class="f-label">Port</span>
+                  <span class="input short"><span class="val" id="port-val">3000</span></span>
+                  <span class="f-hint" id="port-hint" style="padding-left:0;">optional — leave blank to use default</span>
+                </div>
+              </div>
+              <div class="validation ok" id="validation">✕ placeholder</div>
+            </div>
+
+            <div class="preview-box">
+              <span class="pv-label">Will create</span>
+              <span class="pv-url" id="pv-url">https://amber-otter.consensus.canister.software</span>
+              <span class="pv-map">
+                <span class="arrow">→</span>
+                <span class="tgt" id="pv-target">localhost:3000</span>
+                <span class="arrow">·</span>
+                <span id="pv-meta">http · region auto · free tier</span>
+              </span>
+              <div class="start-row">
+                <button class="btn-start"><span class="k">S</span> START TUNNEL</button>
+                <span class="compose-foot">or press <span style="color:var(--subtle);">↵</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookmarks -->
+        <div>
+          <div class="sec-h">
+            <span>Bookmarks</span>
+            <span class="actions"><span class="kbd">M</span> save current · <span class="kbd">O</span> load</span>
+          </div>
+          <div class="bookmarks">
+            <div class="bm-row">
+              <span class="bnum">1</span>
+              <span class="blabel">my-api</span>
+              <span class="bproto">http</span>
+              <span class="btgt">localhost:3000</span>
+              <span class="bage">2h ago</span>
+            </div>
+            <div class="bm-row">
+              <span class="bnum">2</span>
+              <span class="blabel">homelab-ha</span>
+              <span class="bproto">http</span>
+              <span class="btgt">192.168.1.55:8123</span>
+              <span class="bage">1d ago</span>
+            </div>
+            <div class="bm-row">
+              <span class="bnum">3</span>
+              <span class="blabel">db-tunnel</span>
+              <span class="bproto">tcp</span>
+              <span class="btgt">192.168.1.42:22</span>
+              <span class="bage">3d ago</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key hints bar -->
+        <div class="keybar">
+          <span><span class="k">1-7</span>select</span>
+          <span><span class="k">R</span>rescan local</span>
+          <span><span class="k">L</span>rescan LAN</span>
+          <span><span class="k">A</span>show all</span>
+          <span><span class="k">M</span>bookmark</span>
+          <span><span class="k">↑↓</span>navigate</span>
+          <span><span class="k">↵</span>start</span>
+          <span><span class="k">B</span>back</span>
+          <span class="grow"></span>
+          <span class="right">tunnel setup</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="meta-strip">
+      <span><span class="lbl">screen</span>  tunnel setup (pick a target)</span>
+      <span><span class="lbl">grid</span>  168×42 cells · jetbrains mono</span>
+      <span><span class="lbl">palette</span>  rosé pine</span>
+      <span><span class="lbl">toggle</span>  use the Tweaks button to flip protocol / theme / tier</span>
+    </div>
+
+  </div>
+
+  <!-- React + Tweaks -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+
+  <div id="tweaks-root"></div>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "theme": "rose-pine",
+      "protocol": "http",
+      "freeMode": true,
+      "showBookmarks": true
+    }/*EDITMODE-END*/;
+
+    function applyTheme(t) {
+      document.documentElement.classList.toggle('dawn', t === 'rose-pine-dawn');
+    }
+
+    function applyProtocol(proto) {
+      // segmented toggle visual
+      document.querySelectorAll('#proto-seg button').forEach(b => {
+        b.classList.toggle('on', b.dataset.proto === proto);
+      });
+      const portHint = document.getElementById('port-hint');
+      const pvUrl   = document.getElementById('pv-url');
+      const pvTgt   = document.getElementById('pv-target');
+      const pvMeta  = document.getElementById('pv-meta');
+      const portVal = document.getElementById('port-val');
+      const freeTxt = document.getElementById('balance-seg')?.querySelector('.v')?.textContent || '';
+      const tier    = freeTxt === 'free' ? 'free tier' : 'paid';
+      if (proto === 'tcp') {
+        portHint.textContent = 'required for TCP';
+        portHint.style.color = 'var(--gold)';
+        portVal.textContent = '5432';
+        pvUrl.textContent = 'tcp://amber-otter.consensus.canister.software:7842';
+        pvTgt.textContent = 'localhost:5432';
+        pvMeta.textContent = 'tcp · region auto · ' + tier;
+      } else {
+        portHint.textContent = 'optional — leave blank to use default';
+        portHint.style.color = 'var(--muted)';
+        portVal.textContent = '3000';
+        pvUrl.textContent = 'https://amber-otter.consensus.canister.software';
+        pvTgt.textContent = 'localhost:3000';
+        pvMeta.textContent = 'http · region auto · ' + tier;
+      }
+    }
+
+    function applyFree(free) {
+      const balSeg = document.getElementById('balance-seg');
+      if (free) {
+        balSeg.innerHTML = `<span class="k">tier</span> <span class="v">free</span>`;
+      } else {
+        balSeg.innerHTML = `<span class="k">bal</span> <span class="v">$24.18</span>`;
+      }
+      // refresh preview meta to reflect tier
+      const pvMeta = document.getElementById('pv-meta');
+      if (pvMeta) pvMeta.textContent = pvMeta.textContent.replace(/(free tier|paid)$/, free ? 'free tier' : 'paid');
+    }
+
+    function applyBookmarks(show) {
+      const bm = document.querySelector('.bookmarks')?.parentElement;
+      if (bm) bm.style.display = show ? '' : 'none';
+    }
+
+    function TweaksApp() {
+      const { useTweaks } = window;
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      React.useEffect(() => applyTheme(t.theme), [t.theme]);
+      React.useEffect(() => applyFree(t.freeMode), [t.freeMode]);
+      React.useEffect(() => applyProtocol(t.protocol), [t.protocol, t.freeMode]);
+      React.useEffect(() => applyBookmarks(t.showBookmarks), [t.showBookmarks]);
+
+      // wire clickable segmented control back into tweak state
+      React.useEffect(() => {
+        const handlers = [];
+        document.querySelectorAll('#proto-seg button').forEach(b => {
+          const h = () => setTweak('protocol', b.dataset.proto);
+          b.addEventListener('click', h);
+          handlers.push([b, h]);
+        });
+        return () => handlers.forEach(([b, h]) => b.removeEventListener('click', h));
+      }, [setTweak]);
+
+      const { TweaksPanel, TweakSection, TweakRadio, TweakToggle } = window;
+      return (
+        <TweaksPanel title="Tweaks">
+          <TweakSection label="Theme">
+            <TweakRadio
+              value={t.theme}
+              onChange={v => setTweak('theme', v)}
+              options={[
+                {value: 'rose-pine', label: 'Rosé Pine'},
+                {value: 'rose-pine-dawn', label: 'Dawn (light)'},
+              ]}
+            />
+          </TweakSection>
+          <TweakSection label="Protocol">
+            <TweakRadio
+              value={t.protocol}
+              onChange={v => setTweak('protocol', v)}
+              options={[
+                {value: 'http', label: 'HTTP'},
+                {value: 'tcp', label: 'TCP'},
+              ]}
+            />
+          </TweakSection>
+          <TweakSection label="Account">
+            <TweakToggle
+              label="Free tier mode"
+              value={t.freeMode}
+              onChange={v => setTweak('freeMode', v)}
+            />
+          </TweakSection>
+          <TweakSection label="Layout">
+            <TweakToggle
+              label="Show bookmarks"
+              value={t.showBookmarks}
+              onChange={v => setTweak('showBookmarks', v)}
+            />
+          </TweakSection>
+        </TweaksPanel>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<TweaksApp/>);
+  </script>
+
+</body>
+</html>

@@ -30,20 +30,46 @@ npm install @canister-software/consensus-cli
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `mode` | `"inclusive" \| "exclusive"` | `"inclusive"` | `inclusive` proxies all routes **except** those in `routes`. `exclusive` proxies **only** the listed routes. |
-| `routes` | `string[]` | `[]` | Route paths to include or exclude depending on `mode`. |
+| `mode` | `"only" \| "except"` | `"except"` | `only` proxies **only** the listed `routes` (allowlist). `except` proxies everything **but** the listed `routes` (denylist). Required whenever `routes` is non-empty. |
+| `routes` | `string[]` | `[]` | Path rules selected by `mode`. Query params are ignored; matching is on path only. |
 | `matchSubroutes` | `boolean` | `false` | When `true`, a route match also applies to all sub-paths beneath it. |
 | `strategy` | `"auto" \| "manual"` | `"auto"` | `auto` intercepts `fetch()` calls transparently. `manual` exposes `req.consensus.fetch()` for explicit control. |
 | `cache_ttl` | `number` | — | TTL in seconds for node-level response caching. |
 | `verbose` | `boolean` | `false` | Enables verbose response metadata from the proxy node. |
-| `node_region` | `string` | — | Prefer nodes in a specific geographic region. |
+| `node_region` | `string` | — | Prefer nodes in a region, for example `east-us` or `west-europe`. Matched against the region names in [`GET /nodes`](/protocol/api/#get-nodes). |
 | `node_domain` | `string` | — | Route through a specific node domain. |
-| `node_exclude` | `string` | — | Exclude a specific node domain from selection. |
+| `node_exclude` | `string` | — | Never route through these node IDs (comma-separated). `server` excludes the orchestrator. |
 | `limit_usd` | `number` | — | Max proxy spend in USD (up to 6 decimals). When reached, proxying stands down to direct `fetch`. |
 | `on_limit_reached` | `(budget) => void` | — | Callback fired once when stand-down is activated. |
+| `direct` | `boolean` | `true` | Send requests to the selected node through the node gateway with a signed ticket. `false` forces the relayed path through the orchestrator. See [Routing a request](/guides/proxy/). |
+| `profiles` | `Record<string, ProxyProfile>` | — | Named execution profiles, compiled locally into anonymous, versioned execution plans. |
+| `profile` | `string` | — | Default profile name from `profiles`, overridable per request. |
 
-:::note[Pricing]
-Spend tracking uses the fixed server price of **$0.0001** per paid `/proxy` request. Cached responses are not charged.
+:::note[Spend tracking]
+`limit_usd` is tracked on the client, counting the requests it pays for. Cached responses are free and do not count. While the network is in free mode during the public beta, nothing is charged.
+:::
+
+### Route Filtering
+
+`mode` decides how `routes` is read. The two are exact inverses:
+
+```ts
+ProxyClient(fetchWithPayment, { mode: 'only',   routes: ['/api'] })     // proxy only /api
+ProxyClient(fetchWithPayment, { mode: 'except', routes: ['/health'] })  // proxy everything but /health
+ProxyClient(fetchWithPayment, {})                                       // proxy everything
+```
+
+`mode` is **required whenever `routes` is non-empty**. `{ routes: ['/api'] }` reads equally well as "proxy `/api`" and "don't proxy `/api`", and picking one silently would mean billing you for the opposite of what you meant. Misconfigurations are rejected when the client is constructed, rather than quietly changing what you pay for:
+
+| Config | Result |
+|---|---|
+| `{ routes: ['/api'] }` | throws — say which `mode` you meant |
+| `{ mode: 'exclusve', routes: ['/api'] }` | throws — unrecognized `mode`, no silent fallback |
+| `{ mode: 'only', routes: [] }` | throws — an empty allowlist would disable proxying entirely |
+| `{ mode: 'except', routes: [] }` | fine — proxies everything (the default) |
+
+:::caution[Renamed in 0.2.0]
+`mode` was `"inclusive" | "exclusive"`. Those names described the proxy's breadth while sitting next to `routes`, so they read as the inverse of what they did — under `"inclusive"`, listing a route *excluded* it from proxying. `"exclusive"` is now `"only"` and `"inclusive"` is now `"except"`. The old names still work as deprecated aliases with identical behaviour.
 :::
 
 ### Auto Strategy
@@ -59,7 +85,7 @@ const app = express()
 // Proxy only /price — all other routes use direct fetch
 app.use(
   ProxyClient(fetchWithPayment, {
-    mode: 'exclusive',
+    mode: 'only',
     routes: ['/price'],
     matchSubroutes: false,
     strategy: 'auto',
@@ -104,9 +130,58 @@ Both `req.consensus.fetch()` and `req.consensus.request()` accept per-request op
 const response = await req.consensus.fetch(
   'https://api.example.com/data',
   { method: 'GET' },
-  { node_region: 'us-east', cache_ttl: 30 }
+  { node_region: 'east-us', cache_ttl: 30 }
 )
 ```
+
+### Batch Requests
+
+`batch()` runs many proxy requests as one group, either concurrently or strictly one at a time:
+
+```ts
+const results = await proxy.batch(
+  [
+    'https://api.example.com/users/1',
+    'https://api.example.com/users/2',
+    { target_url: 'https://api.example.com/events', method: 'POST', body: { kind: 'sync' } },
+  ],
+  { mode: 'parallel', concurrency: 4 }
+)
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `mode` | `"parallel"` | `"parallel"` dispatches concurrently; `"sequential"` runs strictly one at a time, in input order. |
+| `concurrency` | `8` | Max requests in flight in `"parallel"` mode. Ignored by `"sequential"`. |
+| `signal` | — | An `AbortSignal` that stops dispatching further items. |
+
+Items accept a bare URL string or a full `request()` payload. Any per-request option (`profile`, `cache_ttl`, `verbose`, `node_region`, `node_domain`, `node_exclude`, `direct`) can be set for the whole batch and overridden on a single item through its `options` key.
+
+**Every item settles.** `batch()` never rejects because one request failed — results come back in input order as a discriminated union, so a partial failure is a normal, inspectable outcome:
+
+```ts
+for (const result of results) {
+  if (result.ok) console.log(result.index, result.value.status, result.value.data)
+  else           console.error(result.index, result.error.status, result.error.message)
+}
+
+const succeeded = results.filter((r) => r.ok).map((r) => r.value)
+```
+
+It *does* reject before dispatching anything if the input itself is malformed — a missing `target_url`, an unrecognized `mode`, a non-positive `concurrency`. That is a programming error, and finding it halfway through a paid batch would be an expensive way to learn about a typo.
+
+#### Choosing a mode
+
+Each item is an independent paid `/proxy` request, so caching, profiles, node routing, and the spend limit all behave exactly as they do for a single `request()`. The one behavioural difference between the modes is the budget:
+
+- **`"sequential"`** — the spend guard sees every response before the next request goes out, so `limit_usd` is enforced **exactly**. Also the right choice for rate-limited upstreams.
+- **`"parallel"`** — faster, but up to `concurrency` requests are already in flight when the limit is reached, so spend can overshoot `limit_usd` by up to `concurrency - 1` requests. Keep `concurrency` low when running close to a hard cap.
+
+Items that arrive after the limit is reached stand down to a direct `fetch`, exactly as a single request would, and are reported as successes carrying `meta.bypassed === true`.
+
+:::note[Client-side fan-out]
+Batching currently fans out over the existing `POST /proxy` endpoint — one payment per item. The API is shaped so a future server-side `POST /proxy/batch`, with one payment and one routing pass for the whole group, can back it without a breaking change.
+:::
 
 ### Framework-Agnostic Usage
 
@@ -114,7 +189,7 @@ Use `runWithPath()` to scope interception in any server framework and `createFet
 
 ```ts
 const proxy = ProxyClient(fetchWithPayment, {
-  mode: 'exclusive',
+  mode: 'only',
   routes: ['/api'],
   limit_usd: 1.25,
 })
@@ -211,8 +286,8 @@ const auth = await client.requestToken({
   model: 'hybrid',
   minutes: 10,
   megabytes: 100,
-  nodeRegion: 'eu-west',
-  nodeExclude: 'node.example.com',
+  nodeRegion: 'west-europe',
+  nodeExclude: 'a1b2c3d4e5f6', // a node ID
 })
 ```
 
@@ -263,23 +338,35 @@ const state = session.getState()
 
 ## CLI Commands
 
+Run `consensus` with no arguments to open the full-screen TUI, or use a command directly:
+
 | Command | Description |
 |---|---|
-| `consensus setup` | Create a wallet and register it with the x402 proxy. |
-| `consensus setup --force` | Force re-create the account, resetting any existing configuration. |
-| `consensus help` | Show help message. |
+| `consensus setup` | Set up payment credentials (see below). `--force` resets an existing setup. |
+| `consensus tunnel http <host[:port]>` | Expose a local HTTP server on a public HTTPS URL. |
+| `consensus tunnel tcp <host:port>` | Expose a local TCP service. |
+| `consensus proxy fetch <url>` | Send one proxied HTTP request. |
+| `consensus proxy start [--port N]` | Run a local HTTP forward proxy. |
+| `consensus proxy reverse <host:port> [--port N]` | Put a reverse proxy in front of a local service. Alias: `consensus reverse-proxy`. |
+| `consensus ws token` | Get a WebSocket session token. |
+| `consensus ws connect` | Open an interactive WebSocket session. |
+| `consensus ip list [--region X]` | List nodes with their region, score, and capabilities. |
+| `consensus ip lease <node-id-or-domain>` | Pin your traffic to one node, and so to its IP address. |
+| `consensus ip active` | Show the node you have leased. |
+| `consensus ip release` | Release the leased node. |
+| `consensus help` | Show help. |
+
+Common options: `--method GET`, `--region east-us`, `--cache-ttl 60`, `--verbose`, `--json`, and for WebSockets `--model hybrid|time|data`, `--minutes 5`, `--megabytes 50`.
 
 ### Setup
 
-Run `consensus setup` once to initialize your environment. The CLI will:
+During the public beta the network runs in free mode, so you can use every command without credentials. When payment is enabled, run `consensus setup` once. It offers two modes:
 
-1. **Create a wallet** using your CDP credentials
-2. **Generate `.consensus-config.json`** containing your wallet and delegation credentials
-3. **Export wallet authorization** to the x402 proxy for payment delegation
-4. **Add `.consensus-config.json` to `.gitignore`** automatically to prevent accidental commits
+- **Self-managed keys (recommended).** Enter an EVM private key, a Solana keypair, and optionally the path to an ICP PEM file. They are written as `CONSENSUS_EVM_KEY`, `CONSENSUS_SVM_KEY`, and `CONSENSUS_PEM_PATH` to your shell profile, and payments are signed locally; keys never leave your machine. Run the `source` command setup prints, or open a new shell, to load them.
+- **Managed wallet.** Creates a wallet with your [Coinbase Developer Platform](https://portal.cdp.coinbase.com/) credentials (`CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, `CDP_WALLET_SECRET` in a `.env` file). The keys are held by the proxy service.
 
-:::danger[Keep `.consensus-config.json` out of version control]
-It contains sensitive wallet credentials. The setup command adds it to `.gitignore` automatically — verify this if you use a custom `.gitignore`.
+The CLI keeps its own state, such as your leased node, preferences, and session history, in `~/.consensus/`.
 
-Only fund the delegated wallet with amounts you are comfortable delegating. Do not keep large balances in it.
+:::danger[Treat these keys as live credentials]
+The self-managed keys sit in plain text in your shell profile. Use wallets that hold only what you are comfortable spending, and never commit your shell profile or `.env` to version control.
 :::

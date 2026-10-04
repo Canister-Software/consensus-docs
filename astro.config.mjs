@@ -1,14 +1,37 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
 	output:'static',
 	site: "https://docs.consensus.canister.software",
   	base: "/",
+	// Pages merged during the docs reconciliation; keep old links working
+	redirects: {
+		'/nodes/responsiblities/': '/nodes/requirements/',
+		'/nodes/schema/': '/protocol/api/',
+	},
 	integrations: [
+		sitemap({
+			changefreq: 'weekly',
+			priority: 0.7,
+			serialize(item) {
+				// Landing page: top-priority entry point
+				if (item.url === 'https://docs.consensus.canister.software/') {
+					item.priority = 1.0;
+				}
+				// Node-operator + quickstart funnels: slight boost
+				else if (/\/(join|guides\/node|quickstart)\//.test(item.url)) {
+					item.priority = 0.9;
+				}
+				return item;
+			},
+		}),
 		starlight({
 			title: 'Consensus Docs',
-			
+			// src/pages/404.astro replaces Starlight's built-in 404 page
+			disable404Route: true,
+
 			logo: {
 				dark: './src/assets/logo-light.svg',
 				light: './src/assets/logo-dark.svg',
@@ -40,10 +63,6 @@ export default defineConfig({
 				{
 					label: 'CLI',
 					autogenerate: { directory: 'cli' },
-				},
-				{
-					label: 'x402 Proxy',
-					autogenerate: {directory:'x402proxy'},
 				},
 				{
 					label: 'Facilitator',

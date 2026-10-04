@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The facilitator is an off-chain service that verifies x402 payment proofs on behalf of resource servers. When a client attaches an `X-Payment` header to an HTTP request, the resource server does not query the blockchain directly — it forwards the proof to the facilitator, which performs on-chain verification and returns a signed confirmation.
+The facilitator is an off-chain service that verifies x402 payment proofs on behalf of resource servers. When a client attaches a signed payment to an HTTP request, the resource server does not query the blockchain directly: it forwards the payment to the facilitator, which verifies it and then settles it on chain.
 
 **Public endpoint:** `https://facilitator.canister.software`
 
@@ -15,30 +15,43 @@ The facilitator is an off-chain service that verifies x402 payment proofs on beh
 
 On-chain verification from inside a request handler is impractical — it would block the server on RPC latency for every paid request, require the server to maintain full blockchain state or RPC credentials per network, and make multi-network support expensive to operate.
 
-The facilitator solves this by acting as a stateless verification proxy. The resource server speaks a single REST protocol to one endpoint regardless of which network the client paid on. The facilitator resolves the chain-specific logic and returns a simple valid/invalid signal.
+The facilitator solves this by acting as a verification and settlement service. The resource server speaks a single REST protocol to one endpoint regardless of which network the client paid on. The facilitator resolves the chain-specific logic, checks the payment, and then settles it on chain.
 
 ```
-Resource Server          Facilitator                  Chain
-      │                       │                          │
-      ├── POST /verify ───────►│                          │
-      │   { proof, expected }  │                          │
-      │                        ├── RPC call (network) ───►│
-      │                        │◄── transfer confirmed ───┤
-      │◄── { valid: true } ────┤                          │
+Resource Server               Facilitator                  Chain
+      │                            │                          │
+      ├── POST /verify ───────────►│                          │
+      │   { paymentPayload,        │                          │
+      │     paymentRequirements }  │                          │
+      │◄── { isValid: true } ──────┤                          │
+      │                            │                          │
+      ├── POST /settle ───────────►├── submit transfer ──────►│
+      │◄── { success, transaction }┤◄── confirmed ────────────┤
 ```
 
 ---
 
 ## Verification Flow
 
-1. Client sends a request with `X-Payment` header containing a signed payment proof
-2. Resource server extracts the proof and the expected payment parameters (network, amount, payTo)
-3. Resource server calls the facilitator's `/verify` endpoint
-4. Facilitator queries the appropriate chain to confirm the transfer occurred
-5. Facilitator returns `{ valid: true }` or an error
-6. Resource server either serves the response or returns `402` again
+1. Client sends a request with a signed payment in the `PAYMENT-SIGNATURE` header (`X-PAYMENT` for x402 v1 clients)
+2. Resource server pairs the payment with what the route expects: network, amount, and `payTo`
+3. Resource server calls the facilitator's `POST /verify`, which returns `{ isValid, invalidReason? }`
+4. If the payment is valid, the resource server calls `POST /settle`, and the facilitator submits the transfer on the payment's network
+5. Settlement returns `{ success, transaction, network }`, or `success: false` with an `errorReason`
+6. Resource server serves the response, or returns `402` again
 
-The facilitator is stateless — each call is an independent verification. The resource server does not maintain a session with it.
+`paymentMiddleware` from `@x402/express` makes these calls for you. Each call is independent; the resource server does not hold a session with the facilitator.
+
+## Endpoints
+
+| Route | Purpose |
+|---|---|
+| `POST /verify` | Check a payment against its requirements, without moving funds |
+| `POST /settle` | Settle a verified payment on chain |
+| `GET /supported` | The scheme and network pairs this facilitator handles |
+| `GET /info` | Facilitator identity, including its ICP principal and enabled networks |
+| `GET /discovery/resources` | A catalog of resources that accept x402 payment through this facilitator |
+| `GET /health` | Liveness check |
 
 ---
 
@@ -62,8 +75,8 @@ Pass this client to `x402ResourceServer`. All verification calls from `paymentMi
 |---|---|
 | **Public URL** | `https://facilitator.canister.software` |
 | **Client class** | `HTTPFacilitatorClient` from `@x402/core/server` |
-| **Protocol** | REST — resource server POSTs payment proofs, receives confirmation |
-| **Statefulness** | Stateless — each verification is independent |
+| **Protocol** | REST: the resource server posts each payment to `/verify`, then `/settle` |
+| **State** | Each call is independent. The facilitator keeps a small database of used payment nonces, so a payment cannot be replayed, and of its discovery catalog |
 | **Multi-network** | Yes — the facilitator handles all supported networks behind one endpoint |
 
 See [Supported Networks](/facilitator/networks/) for the full list of chains and tokens the facilitator accepts.

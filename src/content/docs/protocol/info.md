@@ -1,6 +1,6 @@
 ---
 title: What is Consensus Protocol?
-description: A decentralized x402 HTTP proxy service network
+description: A decentralized x402 network for proxied HTTP, tunnels, stable IPs, and metered WebSocket sessions
 ---
 
 Consensus is a decentralized **HTTPS protocol** that operates as a [proxy](https://en.wikipedia.org/wiki/Proxy_server) on behalf of applications. More simply, Consensus Protocol is a network for sharing compute resources.
@@ -39,6 +39,8 @@ Consensus establishes an economic model for computation by pricing **access to e
 
 For HTTP, Consensus executes side-effectful requests exactly once and returns the same response to all identical callers, eliminating duplicate execution and reducing upstream API load through deterministic caching and deduplication. For WebSockets, Consensus introduces metered, prepaid sessions that allow interactive computation to occur within explicitly defined time and data limits.
 
+During the public beta the network runs in free mode, so no payment is taken. The model below is how the protocol prices execution when payment is on.
+
 By requiring payment before execution and enforcing limits at the protocol layer, Consensus aligns incentives between consumers and providers of compute without relying on trust, centralized control, or traditional(ie. credit ord debit) billing systems. Compute becomes a scarce, accountable resource—accessible deterministically, shared where possible, paid for exactly once and without the need for an itermediatry.
 
 ## Use cases
@@ -51,7 +53,9 @@ Consensus addresses these problems by providing a shared execution and response 
 
 ### Primary features
 
-* Coordinated HTTP request execution
+* Coordinated HTTP request execution, through forward and reverse proxies
+* HTTP and TCP tunnels that put a local service on a public address
+* Stable IP addresses, by pinning traffic to a verified node
 * Metered WebSocket connections
 
 ### Reaching consensus on external data
@@ -174,7 +178,7 @@ When multiple replicas submit the same request:
 
 In the Infobip example, the replicated program still issues 13 requests—but only **one outbound request** is ever sent to Infobip. The SMS is delivered once. The cost is incurred once. The response is shared across all replicas.
 
-What previously cost **$0.13** now correctly costs **$0.01 + $0.001 (Consensus fee)**, regardless of subnet size.
+What previously cost **$0.13** now costs **$0.01** plus a single Consensus fee, regardless of subnet size.
 
 Consensus acts as a coordination layer that enforces **exactly-once execution** for non-idempotent HTTP calls, without requiring changes to the upstream service and without introducing centralized trust.
 
@@ -216,7 +220,7 @@ Consensus resolves this problem by separating **where a request is decided** fro
 
 Within the Consensus network, participating nodes may offer stable IP addresses for lease. Each IP is verified for stability and reliability before being admitted into a shared IP pool. These IPs are long-lived, known in advance, and suitable for whitelisting by external services.
 
-Applications lease an IP from this pool rather than relying on the unpredictable egress of a replicated program. When a request is issued, Consensus deterministically selects a leased execution node—such as *Bob’s node*—and instructs the network to route the request through that specific IP.
+Applications lease an IP from this pool rather than relying on the unpredictable egress of a replicated program: they pin their traffic to one node, such as *Bob’s node*, with `consensus ip lease` in the CLI or the `node_domain` option in the SDK. Every request is then routed through that node, and so through its IP.
 
 As a result:
 
@@ -249,7 +253,7 @@ The full flow is illustrated in the diagram above.
 A client begins by requesting WebSocket access over HTTP, specifying the desired execution limits:
 
 ```http
-GET /ws?mode=time&minutes=1&megabytes=0
+GET /ws?model=time&minutes=1
 ```
 
 Because the request represents a request for computation, Consensus responds with an x402 challenge:
@@ -262,24 +266,18 @@ The client retries the request with a valid x402 payment payload. Consensus veri
 
 ```json
 {
-  "token": "xyz",
-  "connect_url": "ws://consensus/ws-connect?token=xyz"
+  "token": "550e8400-e29b-41d4-a716-446655440000",
+  "connect_url": "wss://consensus.canister.software/ws-connect?token=550e8400-e29b-41d4-a716-446655440000",
+  "expires_in": 60
 }
 ```
 
-The token represents the right to establish **exactly one WebSocket session** with predefined limits. In the example shown in the diagram, the token encodes the following constraints:
-
-```json
-{
-  "time_ms": 60000,
-  "data_mb": 100
-}
-```
+The token represents the right to establish **exactly one WebSocket session** with predefined limits. In this example the session is limited to one minute, and the server confirms the limits in its first message once the connection opens.
 
 The client then upgrades to a WebSocket connection using the issued token:
 
 ```text
-WS /ws-connect?token=xyz
+WSS /ws-connect?token=550e8400-e29b-41d4-a716-446655440000
 ```
 
 Before upgrading the connection, Consensus validates the token. If the token is expired, already consumed, or invalid, the upgrade is rejected. If the token is valid, the HTTP connection is upgraded and a WebSocket session is established.
