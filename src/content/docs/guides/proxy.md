@@ -1,6 +1,6 @@
 ---
-title: Routing a request
-description: Follow one HTTP request through the Consensus network, from your code to the upstream API and back.
+title: Proxying HTTP requests
+description: 'Route your app''s outbound HTTP requests through the Consensus forward proxy: deduplicated, cached, and pinned to a region or node, with ProxyClient or POST /proxy.'
 sidebar:
   order: 1
 ---

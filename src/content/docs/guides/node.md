@@ -2,7 +2,7 @@
 title: Setting up a node
 description: Install the latest node software from GitHub, pass the admission benchmark, register, and keep your node running.
 sidebar:
-  order: 2
+  order: 5
 ---
 
 A Consensus node carries live traffic for the network: tunnels, proxied requests, leased IPs, and WebSocket sessions. This guide takes one machine from a fresh clone of the node software to a registered node that comes back on its own after a reboot.

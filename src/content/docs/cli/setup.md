@@ -1,6 +1,6 @@
 ---
 title: Setup
-description: Set up the Consensus CLI, configure payment credentials, and run your first commands.
+description: Install the Consensus CLI to open HTTPS tunnels, proxy requests, lease a static IP, and run WebSocket sessions from your terminal.
 sidebar:
   order: 1
 ---
