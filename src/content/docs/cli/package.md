@@ -1,6 +1,6 @@
 ---
 title: Package
-description: Install the Consensus CLI and SDK package from npm, and what it contains.
+description: 'Install @canister-software/consensus-cli from npm: the proxy and WebSocket SDK for JavaScript and TypeScript, plus the consensus CLI.'
 sidebar:
   order: 2
 ---
