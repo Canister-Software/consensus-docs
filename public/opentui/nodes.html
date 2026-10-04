@@ -108,6 +108,13 @@
 
     /* ── Node table ───────────────────────────────── */
     .ntable { width:100%; border-collapse:collapse; }
+    /* Phone-width embed: keep the frame roughly square — 5 nodes (COMPACT in the
+       script below), and only the node, region, IP, score, and latency columns. */
+    @media (max-width:600px){
+      .tui { min-height:0 !important; }
+      .ntable th:nth-child(3), .ntable td:nth-child(3),
+      .ntable th:nth-child(n+8), .ntable td:nth-child(n+8) { display:none; }
+    }
     .ntable th {
       text-align:left; font-weight:500; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
       color:var(--muted); padding:2px 12px 7px; border-bottom:1px solid var(--hl-med); white-space:nowrap;
@@ -363,7 +370,11 @@
       function scoreClass(s){ return s >= 90 ? 'hi' : s >= 80 ? 'mid' : ''; }
       function capsStr(caps){ return caps.join(' · '); }
 
-      function visibleNodes(){ return NODES.filter(n => filter === 'all' || n.grp === filter); }
+      const COMPACT = window.matchMedia('(max-width: 600px)').matches;
+      function visibleNodes(){
+        const list = NODES.filter(n => filter === 'all' || n.grp === filter);
+        return COMPACT ? list.slice(0, 5) : list;
+      }
 
       function render() {
         const list = visibleNodes();
