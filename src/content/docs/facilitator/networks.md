@@ -5,7 +5,11 @@ sidebar:
   order: 4
 ---
 
-The Consensus facilitator at `https://facilitator.canister.software` supports the following networks. A resource server may accept payment on any subset of these — the client picks the network that matches its registered signer.
+The Consensus facilitator at `https://facilitator.canister.software` supports the networks below; `GET /supported` on the facilitator returns the live list. A resource server may accept payment on any subset of them, and the client picks the network that matches its registered signer.
+
+:::note[What the Consensus network accepts]
+The Consensus server itself currently accepts payment on three test networks: **Base Sepolia** (`eip155:84532`), **Solana Devnet** (`solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`), and **TESTICP** (`icp:1:xafvr-biaaa-aaaai-aql5q-cai`). During the public beta it runs in free mode and takes no payment at all.
+:::
 
 ---
 
@@ -118,7 +122,7 @@ registerExactSvmScheme(client, { signer })
 
 ## ICP Networks
 
-ICP payments use the **TESTICP** token and the `exact` scheme. Prices are expressed in **e8s** — the smallest unit of the token (1 ICP = 100,000,000 e8s).
+ICP payments use the `exact` scheme with ICP, ckUSDC, ckUSDT, or a test token; the network identifier names the token's ledger canister. The examples below use **TESTICP**, the token the Consensus server accepts. Prices are expressed in **e8s** — the smallest unit of the token (1 ICP = 100,000,000 e8s).
 
 ### ICP Testnet
 
@@ -167,11 +171,19 @@ registerExactIcpScheme(client, { signer })
 
 | Network | Identifier | Token | Denomination | Status |
 |---|---|---|---|---|
+| Ethereum | `eip155:1` | USDC | 6 decimals | Production |
+| Ethereum Sepolia | `eip155:11155111` | USDC | 6 decimals | Testnet |
 | Base | `eip155:8453` | USDC | 6 decimals | Production |
 | Base Sepolia | `eip155:84532` | USDC | 6 decimals | Testnet |
 | Solana | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` | USDC | 6 decimals | Production |
 | Solana Devnet | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` | USDC | 6 decimals | Testnet |
-| ICP | `icp:1:xafvr-biaaa-aaaai-aql5q-cai` | TESTICP | e8s | Testnet |
+| ICP | `icp:1:ryjl3-tyaaa-aaaaa-aaaba-cai` | ICP | e8s | Production |
+| ICP | `icp:1:xevnm-gaaaa-aaaar-qafnq-cai` | ckUSDC | 6 decimals | Production |
+| ICP | `icp:1:cngnf-vqaaa-aaaar-qag4q-cai` | ckUSDT | 6 decimals | Production |
+| ICP | `icp:1:xafvr-biaaa-aaaai-aql5q-cai` | TESTICP | e8s | Testnet token |
+| ICP | `icp:1:3jkp5-oyaaa-aaaaj-azwqa-cai` | TICRC1 | Ledger units | Testnet token |
+
+ICP identifiers name the token's **ledger canister**. TESTICP and TICRC1 are test tokens on ICP mainnet, available from the [ICP faucet](https://faucet.internetcomputer.org).
 
 :::note
 The `x402ResourceServer` must have a scheme registered for every network listed in a route's `accepts` array. Listing a network in `accepts` without registering its scheme will cause payment verification to fail for that network.

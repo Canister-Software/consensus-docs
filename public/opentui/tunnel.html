@@ -348,7 +348,7 @@
         <div class="connbar">
           <div class="status"><span class="pulse"></span><span id="conn-state">CONNECTED</span></div>
           <div class="url-wrap">
-            <span class="url" id="public-url">https://amber-otter.consensus.canister.software</span>
+            <span class="url" id="public-url">https://amber-otter.tunnel.canister.software</span>
             <button class="copy" id="copy-btn">⧉ copy</button>
           </div>
           <div class="clock"><span class="k">uptime</span> <span id="uptime">01:24:07</span></div>
@@ -619,8 +619,8 @@
           state.protocol = p;
           const target = p === 'http' ? 'localhost:3000' : 'localhost:5432';
           const url = p === 'http'
-            ? 'https://amber-otter.consensus.canister.software'
-            : 'tcp://amber-otter.consensus.canister.software:7842';
+            ? 'https://amber-otter.tunnel.canister.software'
+            : 'tcp://amber-otter.tunnel.canister.software:7842';
           const sub = p === 'http' ? 'http · node · my-api' : 'tcp · postgres';
           document.getElementById('target-val').textContent = target;
           document.getElementById('public-url').textContent = url;

@@ -36,14 +36,17 @@ npm install @canister-software/consensus-cli
 | `strategy` | `"auto" \| "manual"` | `"auto"` | `auto` intercepts `fetch()` calls transparently. `manual` exposes `req.consensus.fetch()` for explicit control. |
 | `cache_ttl` | `number` | — | TTL in seconds for node-level response caching. |
 | `verbose` | `boolean` | `false` | Enables verbose response metadata from the proxy node. |
-| `node_region` | `string` | — | Prefer nodes in a specific geographic region. |
+| `node_region` | `string` | — | Prefer nodes in a region, for example `east-us` or `west-europe`. Matched against the region names in [`GET /nodes`](/protocol/api/#get-nodes). |
 | `node_domain` | `string` | — | Route through a specific node domain. |
-| `node_exclude` | `string` | — | Exclude a specific node domain from selection. |
+| `node_exclude` | `string` | — | Never route through these node IDs (comma-separated). `server` excludes the orchestrator. |
 | `limit_usd` | `number` | — | Max proxy spend in USD (up to 6 decimals). When reached, proxying stands down to direct `fetch`. |
 | `on_limit_reached` | `(budget) => void` | — | Callback fired once when stand-down is activated. |
+| `direct` | `boolean` | `true` | Send requests to the selected node through the node gateway with a signed ticket. `false` forces the relayed path through the orchestrator. See [Routing a request](/guides/proxy/). |
+| `profiles` | `Record<string, ProxyProfile>` | — | Named execution profiles, compiled locally into anonymous, versioned execution plans. |
+| `profile` | `string` | — | Default profile name from `profiles`, overridable per request. |
 
-:::note[Pricing]
-Spend tracking uses the fixed server price of **$0.0001** per paid `/proxy` request. Cached responses are not charged.
+:::note[Spend tracking]
+`limit_usd` is tracked on the client, counting the requests it pays for. Cached responses are free and do not count. While the network is in free mode during the public beta, nothing is charged.
 :::
 
 ### Route Filtering
@@ -127,7 +130,7 @@ Both `req.consensus.fetch()` and `req.consensus.request()` accept per-request op
 const response = await req.consensus.fetch(
   'https://api.example.com/data',
   { method: 'GET' },
-  { node_region: 'us-east', cache_ttl: 30 }
+  { node_region: 'east-us', cache_ttl: 30 }
 )
 ```
 
@@ -283,8 +286,8 @@ const auth = await client.requestToken({
   model: 'hybrid',
   minutes: 10,
   megabytes: 100,
-  nodeRegion: 'eu-west',
-  nodeExclude: 'node.example.com',
+  nodeRegion: 'west-europe',
+  nodeExclude: 'a1b2c3d4e5f6', // a node ID
 })
 ```
 
@@ -335,23 +338,35 @@ const state = session.getState()
 
 ## CLI Commands
 
+Run `consensus` with no arguments to open the full-screen TUI, or use a command directly:
+
 | Command | Description |
 |---|---|
-| `consensus setup` | Create a wallet and register it with the x402 proxy. |
-| `consensus setup --force` | Force re-create the account, resetting any existing configuration. |
-| `consensus help` | Show help message. |
+| `consensus setup` | Set up payment credentials (see below). `--force` resets an existing setup. |
+| `consensus tunnel http <host[:port]>` | Expose a local HTTP server on a public HTTPS URL. |
+| `consensus tunnel tcp <host:port>` | Expose a local TCP service. |
+| `consensus proxy fetch <url>` | Send one proxied HTTP request. |
+| `consensus proxy start [--port N]` | Run a local HTTP forward proxy. |
+| `consensus proxy reverse <host:port> [--port N]` | Put a reverse proxy in front of a local service. Alias: `consensus reverse-proxy`. |
+| `consensus ws token` | Get a WebSocket session token. |
+| `consensus ws connect` | Open an interactive WebSocket session. |
+| `consensus ip list [--region X]` | List nodes with their region, score, and capabilities. |
+| `consensus ip lease <node-id-or-domain>` | Pin your traffic to one node, and so to its IP address. |
+| `consensus ip active` | Show the node you have leased. |
+| `consensus ip release` | Release the leased node. |
+| `consensus help` | Show help. |
+
+Common options: `--method GET`, `--region east-us`, `--cache-ttl 60`, `--verbose`, `--json`, and for WebSockets `--model hybrid|time|data`, `--minutes 5`, `--megabytes 50`.
 
 ### Setup
 
-Run `consensus setup` once to initialize your environment. The CLI will:
+During the public beta the network runs in free mode, so you can use every command without credentials. When payment is enabled, run `consensus setup` once. It offers two modes:
 
-1. **Create a wallet** using your CDP credentials
-2. **Generate `.consensus-config.json`** containing your wallet and delegation credentials
-3. **Export wallet authorization** to the x402 proxy for payment delegation
-4. **Add `.consensus-config.json` to `.gitignore`** automatically to prevent accidental commits
+- **Self-managed keys (recommended).** Enter an EVM private key, a Solana keypair, and optionally the path to an ICP PEM file. They are written as `CONSENSUS_EVM_KEY`, `CONSENSUS_SVM_KEY`, and `CONSENSUS_PEM_PATH` to your shell profile, and payments are signed locally; keys never leave your machine. Run the `source` command setup prints, or open a new shell, to load them.
+- **Managed wallet.** Creates a wallet with your [Coinbase Developer Platform](https://portal.cdp.coinbase.com/) credentials (`CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, `CDP_WALLET_SECRET` in a `.env` file). The keys are held by the proxy service.
 
-:::danger[Keep `.consensus-config.json` out of version control]
-It contains sensitive wallet credentials. The setup command adds it to `.gitignore` automatically — verify this if you use a custom `.gitignore`.
+The CLI keeps its own state, such as your leased node, preferences, and session history, in `~/.consensus/`.
 
-Only fund the delegated wallet with amounts you are comfortable delegating. Do not keep large balances in it.
+:::danger[Treat these keys as live credentials]
+The self-managed keys sit in plain text in your shell profile. Use wallets that hold only what you are comfortable spending, and never commit your shell profile or `.env` to version control.
 :::

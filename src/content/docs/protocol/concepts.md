@@ -1,6 +1,6 @@
 ---
 title: Core Concepts
-description: The building blocks of the Consensus Protocol — x402, deduplication, schemes, nodes, and sessions
+description: The building blocks of the Consensus Protocol — x402, deduplication, nodes, routing, and sessions
 ---
 
 This page defines the fundamental concepts that underpin the Consensus Protocol. Understanding these helps explain why the system behaves the way it does and how each part relates to the others.
@@ -14,10 +14,10 @@ x402 is an open payment protocol built on HTTP. It extends the standard `402 Pay
 The full flow for a protected request:
 
 1. The client sends a normal HTTP request
-2. The server responds `402 Payment Required` with a payment challenge in the response headers — specifying the accepted networks, price, and payment address
-3. The client signs and submits a micropayment on the chosen network
-4. The client retries the original request with the signed payment attached in the `X-Payment` header
-5. The server verifies the payment through the facilitator and processes the request
+2. The server responds `402 Payment Required` with a payment challenge in the `PAYMENT-REQUIRED` header, specifying the accepted networks, price, and payment address
+3. The client signs a payment on one of the accepted networks
+4. The client retries the original request with the signed payment in the `PAYMENT-SIGNATURE` header (x402 v1 clients use `X-PAYMENT`)
+5. The server verifies and settles the payment through the facilitator, processes the request, and returns the settlement result in the `PAYMENT-RESPONSE` header
 
 ```
 Client                  Consensus              Facilitator
@@ -31,13 +31,17 @@ Client                  Consensus              Facilitator
   │◄── 200 (token) ────────┤                       │
 ```
 
-The `x402Client` and `wrapFetchWithPayment` in `@x402/fetch` handle steps 2–4 automatically. Your code only sees the final response.
+The `x402Client` and `wrapFetchWithPayment` in `@x402/fetch`, or `createPaymentFetch()` from the Consensus SDK, handle steps 2–4 automatically. Your code only sees the final response.
+
+:::note[Free mode during the public beta]
+While the network is in free mode, the server skips the payment step entirely: no `402` is issued. `GET /config` reports `{ "free_mode": true }`, and the SDK uses it to run without payment credentials.
+:::
 
 ---
 
 ## Facilitator
 
-The facilitator is an off-chain service that verifies x402 payment proofs. When the Consensus server receives a request with an `X-Payment` header, it submits the proof to the facilitator, which confirms on-chain settlement before granting access.
+The facilitator is an off-chain service that verifies x402 payment proofs. When the Consensus server receives a request carrying a payment, it submits the proof to the facilitator, which confirms on-chain settlement before granting access.
 
 The facilitator decouples payment verification from the server — the server does not need to query the blockchain directly. Consensus uses `https://facilitator.canister.software` by default.
 
@@ -80,7 +84,7 @@ registerExactIcpScheme(client, { signer })
 
 The deduplication key is the core fingerprint that identifies a unique request. It is a SHA-256 hash of the canonicalized request, computed before any payment is checked.
 
-The key is derived from four inputs:
+The key is derived from four inputs, plus the hash of a proxy profile when the request uses one:
 
 | Input | How it's canonicalized |
 |---|---|
@@ -119,31 +123,44 @@ Request B ──► PENDING (waits on A) ─────────────
 Request C ──► HIT ──► respond from cache (free)
 ```
 
-Cached responses persist for the configured TTL (default `300s`, overridable per-request with `x-cache-ttl`). Once the TTL expires, the next request re-executes and refreshes the cache.
+Cached responses persist for the configured TTL (default `300s`, overridable per request with `x-cache-ttl`, up to one hour). Once the TTL expires, the next request re-executes and refreshes the cache.
 
 ---
 
 ## Nodes
 
-A **node** is an independent server operator registered with the Consensus network. Nodes extend the network's geographic reach, absorb proxy load, and provide stable egress IPs for IP-whitelisting use cases.
+A **node** is an independently operated machine that carries traffic for the network: proxied requests, tunnels, WebSocket sessions, and leased IPs. Nodes extend the network's geographic reach, absorb load, and provide stable egress IPs for IP-whitelisting.
 
-### Registration
+### Joining
 
-Nodes join by calling `POST /node/join` with an x402 payment. The join price increases with network size:
+A node joins by passing an **encrypted evaluation** and then registering. The [node software](/guides/node/) runs the whole flow with `bun run setup`:
 
-```
-price = min($100 + n × $50, $1000)
-```
+1. **Evaluation.** The node opens an encrypted tunnel to the orchestrator and runs a benchmark. The orchestrator owns the admission decision: the machine must sustain steady throughput on 16 KB responses on a full CPU core, keep its event loop responsive, and have enough memory. A pass issues a short-lived **join authorization** bound to the node's Ed25519 identity key.
+2. **Email verification.** The operator verifies a contact email.
+3. **Registration.** `POST /node/join` consumes the join authorization and records the node's payout addresses. The node receives an ID and a hostname, `<node-id>.consensus.canister.software`.
 
-Before a node is admitted, the server runs a benchmark against the node's `test_endpoint`. Nodes scoring below **60/100** are rejected. Passing nodes receive a DNS subdomain (`<node_id>.consensus.canister.software`) provisioned automatically.
+Joining is free during the public beta. Outside free mode, registration carries an x402 join fee of `min($100 + $50 × n, $1000)`, where `n` is the number of registered nodes.
+
+When the stability trial is enabled, a new node starts in `trial` and must stay connected and perform under real requests for 24 hours before it is routed traffic.
+
+### Connectivity
+
+Each node keeps an outbound, encrypted **control tunnel** to the orchestrator. Heartbeats, updates, and today's client traffic all travel over it, so a node can join without any open inbound port. Clients reach a node through the **node gateway** at `<node-id>.consensus.canister.software`, which the orchestrator bridges onto the node's tunnel.
+
+The network is moving toward nodes that clients reach **directly**, which is what lets it scale past the orchestrator. Plan for a node to be directly reachable on an open inbound port; see [Architecture](/protocol/architecture/).
 
 ### Routing
 
-When a proxy or WebSocket request arrives, the router selects a node based on preference headers (`x-node-region`, `x-node-domain`, `x-node-exclude`). If no matching node is available, the server handles the request directly — this is called **self-fallback**.
+For each request the router picks a node:
 
-### Heartbeat
+- **Sticky by request.** A request goes back to the node that served the same deduplication key before, so that node's cache is reused.
+- **Preferences.** `x-node-region` (matched against region names such as `east-us`), `x-node-domain`, and `x-node-exclude` (node IDs) narrow the candidates.
+- **Load.** Among nodes with spare capacity, the router compares two at random and picks the less loaded one.
+- **Orchestrator fallback.** The orchestrator serves a request itself (node ID `server`) only when every eligible node is saturated, unless the caller excluded `server`.
 
-Registered nodes must send a heartbeat to `POST /node/heartbeat/:node_id` every **5 minutes**. Heartbeats report current `rps`, `p95_ms`, and software `version`. Nodes that stop sending heartbeats are marked inactive and removed from routing.
+### Health and updates
+
+The orchestrator tracks each node through its control tunnel. Disconnected nodes stop receiving traffic. The orchestrator also decides which release every node must run: it sends the update over the tunnel, waits until the node is idle, and then has it restart on the new release.
 
 ---
 
@@ -153,7 +170,7 @@ Consensus treats WebSocket access as **prepaid computation**. A session is alway
 
 ### 1. Token acquisition (`GET /ws`)
 
-The client sends an HTTP request specifying the billing model and desired limits. Consensus responds with a `402` challenge. After payment, a session token is returned — a 64-character hex string valid for **60 seconds**.
+The client sends an HTTP request specifying the billing model and desired limits. When payment is enabled, Consensus responds with a `402` challenge. After payment (or immediately, in free mode), a session token is returned: a UUID valid for **60 seconds**.
 
 ### 2. Connection (`WSS /ws-connect?token=`)
 
@@ -179,12 +196,12 @@ Every cached response has a TTL. When the TTL expires the response is evicted an
 
 TTL is resolved in this priority order:
 
-1. `x-cache-ttl` request header — per-request override
-2. `cache-ttl` request header — alias
-3. `cache_ttl` ProxyClient option — client-level default
-4. Server default — **300 seconds**
+1. `cache_ttl` set on a single `ProxyClient` call
+2. `cache_ttl` set on the `ProxyClient`
+3. `x-cache-ttl` in the request's `headers` object, for direct `/proxy` calls
+4. Server default: **300 seconds**
 
-The minimum enforced TTL is **1 second**. Setting TTL to `0` does not disable caching — use a dedicated bypass mechanism if you need guaranteed freshness.
+The SDK sends its `cache_ttl` as `x-cache-ttl`. The server clamps every TTL to between **1 second** and **1 hour**. Setting TTL to `0` does not disable caching — use a dedicated bypass mechanism if you need guaranteed freshness.
 
 ---
 
@@ -206,8 +223,10 @@ Putting it all together, a full `POST /proxy` request flows as follows:
    └─ Yes → wait for in-flight result → return same response
 
 5. Select node via router
-   └─ Node available → proxy request to node
-   └─ No node → execute directly (self-fallback)
+   └─ Direct route requested (x-direct, the SDK default) → return a signed
+      ticket; the client sends the request to the node through the gateway
+   └─ Node available → relay the request to the node over its tunnel
+   └─ All nodes saturated → execute on the orchestrator (self-fallback)
 
 6. Execute upstream request
 

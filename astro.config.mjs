@@ -6,6 +6,11 @@ export default defineConfig({
 	output:'static',
 	site: "https://docs.consensus.canister.software",
   	base: "/",
+	// Pages merged during the docs reconciliation; keep old links working
+	redirects: {
+		'/nodes/responsiblities/': '/nodes/requirements/',
+		'/nodes/schema/': '/protocol/api/',
+	},
 	integrations: [
 		sitemap({
 			changefreq: 'weekly',

@@ -11,6 +11,20 @@ This guide walks through creating an x402 client that authenticates and pays for
 
 By the end you will have a working client that automatically handles the x402 payment flow: your code makes a normal `fetch` call and the client handles the `402 → sign → retry` cycle transparently.
 
+:::note[Free during the public beta]
+The network runs in free mode during the public beta, so requests go through without payment and you do not need a funded wallet yet. The SDK checks the server's [`GET /config`](/protocol/api/#get-config) and skips payment credentials while free mode is on:
+
+```js
+import { createPaymentFetch } from '@canister-software/consensus-cli'
+
+// Signers come from CONSENSUS_EVM_KEY, CONSENSUS_SVM_KEY, or CONSENSUS_PEM_PATH.
+// In free mode none are required.
+const fetchWithPayment = await createPaymentFetch()
+```
+
+`createPaymentFetch()` builds the same x402 client this guide assembles by hand. Follow the steps below to understand each piece or to wire up your own signers.
+:::
+
 :::caution[Private keys are for server-side use only]
 PEM files, base58 keys, and hex private keys must only be loaded in **server-side** environments. Never import or expose a raw private key in browser code. Exposing your private keys can result in a complete loss of funds!
 :::
@@ -19,7 +33,7 @@ PEM files, base58 keys, and hex private keys must only be loaded in **server-sid
 
 - [Node.js](https://nodejs.org/) v18 or later
 - [npm](https://www.npmjs.com/)
-- A funded signing identity
+- A signing identity, funded on the test network you will pay on (not needed during the free beta)
 
 ## Signers
 
@@ -578,6 +592,6 @@ Signer address: 0x...
 
 ## Next Steps
 
-- [Installing a Consensus Node](/quickstart/nodes/) — run your own node in the network
+- [Setting up a node](/guides/node/) — run your own node in the network
 - [Consensus API](/protocol/api/) — full reference for all available routes
 - [Routing a Request](/guides/proxy/) — a deeper walkthrough of the full request lifecycle

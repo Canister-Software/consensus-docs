@@ -304,15 +304,15 @@
         <div class="modal" role="dialog" aria-modal="true">
           <span class="m-title">Lease node</span>
           <div class="m-body">
-            <div class="m-node" id="m-node">node-a3f1.us-west.consensus</div>
-            <div class="m-region" id="m-region">region us-west-1 · operator canister.software</div>
+            <div class="m-node" id="m-node">a3f1c94b2e07.consensus.canister.software</div>
+            <div class="m-region" id="m-region">region west-us · operator canister.software</div>
             <div class="m-grid">
               <div class="m-row"><span class="mk">Score</span><span class="mv foam" id="m-score">96/100</span></div>
               <div class="m-row"><span class="mk">Latency</span><span class="mv foam" id="m-lat">38 ms</span></div>
               <div class="m-row"><span class="mk">Load</span><span class="mv" id="m-load">28%</span></div>
               <div class="m-row"><span class="mk">SLA</span><span class="mv" id="m-sla">99.9%</span></div>
               <div class="m-row"><span class="mk">Caps</span><span class="mv" id="m-caps">http · caching · ipv4 · ipv6</span></div>
-              <div class="m-row"><span class="mk">IP</span><span class="mv" id="m-ip">51.81.44.12</span></div>
+              <div class="m-row"><span class="mk">IP</span><span class="mv" id="m-ip">51.xxx.xxx.xxx</span></div>
             </div>
             <div class="m-note" id="m-note">
               <span class="ni">○</span>
@@ -341,14 +341,14 @@
   <script>
     (function () {
       const NODES = [
-        { id:'node-a3f1', region:'us-west-1', grp:'us', ip:'51.81.44.12',  score:96, lat:38,  load:28, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4','ipv6'] },
-        { id:'node-b7d2', region:'us-west-1', grp:'us', ip:'51.81.44.51',  score:94, lat:42,  load:34, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
-        { id:'node-c5e9', region:'us-west-1', grp:'us', ip:'51.81.44.88',  score:91, lat:44,  load:41, sla:'99.8%', op:'helios-net',        caps:['http','caching','ipv4','ipv6'] },
-        { id:'node-e8c4', region:'us-east-1', grp:'us', ip:'72.14.201.7',  score:89, lat:52,  load:37, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
-        { id:'node-f2a8', region:'us-east-1', grp:'us', ip:'72.14.201.40', score:86, lat:58,  load:52, sla:'99.7%', op:'eastgate',          caps:['http','ipv4'] },
-        { id:'node-9f01', region:'eu-west-1', grp:'eu', ip:'141.94.22.9',  score:83, lat:88,  load:44, sla:'99.9%', op:'frankfurt-ix',      caps:['http','caching','ipv4','ipv6'] },
-        { id:'node-3d77', region:'eu-west-1', grp:'eu', ip:'141.94.22.61', score:80, lat:94,  load:61, sla:'99.6%', op:'frankfurt-ix',      caps:['http','caching','ipv4'] },
-        { id:'node-1bcd', region:'ap-east-1', grp:'ap', ip:'8.210.55.3',   score:72, lat:142, load:69, sla:'99.5%', op:'pacrim-cloud',      caps:['http','ipv4'] },
+        { id:'a3f1c94b2e07', region:'west-us', grp:'us', ip:'51.xxx.xxx.xxx',  score:96, lat:38,  load:28, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4','ipv6'] },
+        { id:'b7d24e19c3a5', region:'west-us', grp:'us', ip:'51.xxx.xxx.xxx',  score:94, lat:42,  load:34, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
+        { id:'c5e90a72d61f', region:'west-us', grp:'us', ip:'51.xxx.xxx.xxx',  score:91, lat:44,  load:41, sla:'99.8%', op:'helios-net',        caps:['http','caching','ipv4','ipv6'] },
+        { id:'e8c4173a90bd', region:'east-us', grp:'us', ip:'72.xxx.xxx.xxx',  score:89, lat:52,  load:37, sla:'99.9%', op:'canister.software', caps:['http','caching','ipv4'] },
+        { id:'f2a86b05e4c8', region:'east-us', grp:'us', ip:'72.xxx.xxx.xxx', score:86, lat:58,  load:52, sla:'99.7%', op:'eastgate',          caps:['http','ipv4'] },
+        { id:'9f01d3c8a246', region:'west-europe', grp:'eu', ip:'141.xxx.xxx.xxx',  score:83, lat:88,  load:44, sla:'99.9%', op:'frankfurt-ix',      caps:['http','caching','ipv4','ipv6'] },
+        { id:'3d77e2b1f09a', region:'west-europe', grp:'eu', ip:'141.xxx.xxx.xxx', score:80, lat:94,  load:61, sla:'99.6%', op:'frankfurt-ix',      caps:['http','caching','ipv4'] },
+        { id:'1bcd5867e3d2', region:'east-asia', grp:'ap', ip:'8.xxx.xxx.xxx',   score:72, lat:142, load:69, sla:'99.5%', op:'pacrim-cloud',      caps:['http','ipv4'] },
       ];
       const REGION_COUNT = { all:148, us:80, eu:48, ap:20 };
 
@@ -376,7 +376,7 @@
           return `<tr class="${cls}" data-i="${i}">
             <td class="marker">${sel ? '▶' : leased ? '●' : ''}</td>
             <td><span class="node-id">${n.id}</span></td>
-            <td class="domain">${n.id}.${n.region.replace(/-1$/,'')}.consensus</td>
+            <td class="domain">${n.id}.consensus.canister.software</td>
             <td class="region">${n.region}</td>
             <td class="ip">${n.ip}</td>
             <td class="r"><span class="score ${scoreClass(n.score)}">${n.score}<span class="slash">/100</span></span></td>
@@ -400,7 +400,7 @@
           const n = NODES.find(x => x.id === leasedId);
           lb.className = 'leasebar active';
           lb.innerHTML = `<span class="ld"></span>
-            <span class="lt"><span class="dom">${n.id}.${n.region.replace(/-1$/,'')}.consensus</span> <span class="sub">· ${n.region} · leased just now</span></span>`
+            <span class="lt"><span class="dom">${n.id}.consensus.canister.software</span> <span class="sub">· ${n.region} · leased just now</span></span>`
             + (free ? '<span class="free"><span class="fd"></span>free mode</span>' : '');
           rel.style.opacity = '1';
         } else {
@@ -417,7 +417,7 @@
       function openModal() {
         const n = visibleNodes()[cursor];
         if (!n) return;
-        $('m-node').textContent = `${n.id}.${n.region.replace(/-1$/,'')}.consensus`;
+        $('m-node').textContent = `${n.id}.consensus.canister.software`;
         $('m-region').textContent = `region ${n.region} · operator ${n.op}`;
         $('m-score').textContent = `${n.score}/100`;
         $('m-score').className = 'mv ' + (scoreClass(n.score) === 'hi' ? 'foam' : scoreClass(n.score) === 'mid' ? 'gold' : '');
