@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Run a Consensus node | Earn x402 fees serving traffic</title>
-  <meta name="description" content="Run a Consensus node to serve tunnels, proxy requests, leased stable IPs, and WebSocket sessions, and earn x402 fees on the traffic you carry. No staking tiers." />
+  <title>Run a Consensus node | Help build the beta network</title>
+  <meta name="description" content="Run a Consensus node during the public beta. Serve tunnels, proxy requests, leased stable IPs, and WebSocket sessions, and help expand the network. No rewards are paid during the beta." />
 
   <!-- Canonical -->
   <link rel="canonical" href="https://docs.consensus.canister.software/join/" />
@@ -12,21 +12,21 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Consensus" />
-  <meta property="og:title" content="Run a Consensus node | Earn x402 fees serving traffic" />
-  <meta property="og:description" content="Run a Consensus node and earn directly from the traffic it carries. Rewards are 100% fair and equally distributed, with no staking tiers and no privileged validators." />
+  <meta property="og:title" content="Run a Consensus node | Help build the beta network" />
+  <meta property="og:description" content="Run a Consensus node during the public beta and help expand the network. The beta is about finding viable nodes; no rewards are paid during it." />
   <meta property="og:url" content="https://docs.consensus.canister.software/join/" />
   <meta property="og:image" content="https://docs.consensus.canister.software/seo/consensus-node-provider-card.png" />
   <meta property="og:image:width" content="2400" />
   <meta property="og:image:height" content="1260" />
-  <meta property="og:image:alt" content="Consensus for node operators: run a node and earn from the network" />
+  <meta property="og:image:alt" content="Consensus for node operators: Got compute? Run a Consensus node." />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Run a Consensus node | Earn x402 fees serving traffic" />
-  <meta name="twitter:description" content="Run a Consensus node and earn directly from the traffic it carries. Rewards are 100% fair and equally distributed." />
+  <meta name="twitter:title" content="Run a Consensus node | Help build the beta network" />
+  <meta name="twitter:description" content="Run a Consensus node during the public beta and help expand the network. The beta is about finding viable nodes; no rewards are paid during it." />
   <meta name="twitter:image" content="https://docs.consensus.canister.software/seo/consensus-node-provider-card.png" />
-  <meta name="twitter:image:alt" content="Consensus for node operators: run a node and earn from the network" />
+  <meta name="twitter:image:alt" content="Consensus for node operators: Got compute? Run a Consensus node." />
 
   <!-- Structured data -->
   <script type="application/ld+json" is:inline>
@@ -48,8 +48,8 @@
           "@type": "WebPage",
           "@id": "https://docs.consensus.canister.software/join/#webpage",
           "url": "https://docs.consensus.canister.software/join/",
-          "name": "Run a Consensus node | Earn x402 fees serving traffic",
-          "description": "Run a Consensus node to serve tunnels, proxy requests, leased stable IPs, and WebSocket sessions, and earn x402 fees on the traffic you carry. No staking tiers.",
+          "name": "Run a Consensus node | Help build the beta network",
+          "description": "Run a Consensus node during the public beta. Serve tunnels, proxy requests, leased stable IPs, and WebSocket sessions, and help expand the network. No rewards are paid during the beta.",
           "inLanguage": "en-US",
           "isPartOf": { "@id": "https://docs.consensus.canister.software/#org" },
           "publisher": { "@id": "https://docs.consensus.canister.software/#org" },
@@ -123,10 +123,10 @@
             },
             {
               "@type": "Question",
-              "name": "How does a node get paid?",
+              "name": "Do nodes earn rewards during the beta?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Every billable action on the network is an x402 payment, and the node that served it collects the fee. Rewards are equally distributed across the active set — there are no staking tiers and no privileged validators, so a node earns from the work it does rather than from the size of a stake."
+                "text": "No. No rewards are paid during the public beta, and the network is free to use. The beta exists to expand the network and find viable nodes: machines that pass admission and keep passing the heartbeat and re-tests under real traffic. Registration is complete, payout addresses included, so a node that joins now is fully set up once the reward model is decided."
               }
             },
             {
@@ -188,6 +188,11 @@
     @media (max-width:620px){
       /* nav has room for one action on phones */
       #nav-docs{display:none}
+      nav[style*="padding:13px 28px"]{gap:12px !important}
+    }
+    @media (max-width:400px){
+      /* narrowest phones: drop the badge so logo + CTA fit on one line */
+      nav a[href="/"] > span[style*="border-radius:6px"]{display:none}
     }
     @media (max-width:560px){
       [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:1fr !important}
@@ -215,7 +220,7 @@
       </a>
       <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
         <a href="/guides/node/" id="nav-docs" style="text-decoration:none;font-size:14px;color:rgba(255,255,255,0.62)">Node docs</a>
-        <a href="#start" style="text-decoration:none;font-size:14px;font-weight:500;color:#000;background:#fff;padding:8px 16px;border-radius:9px">Join the network</a>
+        <a href="#start" style="text-decoration:none;font-size:14px;font-weight:500;color:#000;background:#fff;padding:8px 16px;border-radius:9px;white-space:nowrap">Join the network</a>
       </div>
     </nav>
   </header>
@@ -230,7 +235,8 @@
       </div>
       <h1 style="margin:0;font-size:clamp(36px,4.8vw,62px);line-height:1.03;letter-spacing:-0.035em;font-weight:600;max-width:15ch"><span style="color:rgba(255,255,255,0.34)">I am.</span> <span style="color:rgba(255,255,255,0.6)">You are.</span><br />We are Consensus.</h1>
       <p style="margin:18px 0 0;font-size:clamp(19px,2vw,26px);line-height:1.2;letter-spacing:-0.02em;font-weight:600;color:rgba(255,255,255,0.42)">Ready to power the network?</p>
-      <p style="margin:30px 0 0;font-size:clamp(17px,1.8vw,21px);line-height:1.55;color:rgba(255,255,255,0.6);max-width:60ch">Run a node. Carry traffic. Earn directly. Serve HTTP and TCP tunnels, forward and reverse proxy requests, leased stable IPs, and metered WebSocket sessions — and collect x402 fees on every one.</p>
+      <p style="margin:30px 0 0;font-size:clamp(17px,1.8vw,21px);line-height:1.55;color:rgba(255,255,255,0.6);max-width:60ch">Run a node. Carry traffic. Help build the network. Serve HTTP and TCP tunnels, forward and reverse proxy requests, leased stable IPs, and metered WebSocket sessions while Consensus is in public beta.</p>
+      <p style="margin:14px 0 0;font-size:14px;line-height:1.55;color:rgba(255,255,255,0.45);max-width:60ch">No rewards are paid during the beta. It exists to expand the network and find viable nodes.</p>
       <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:38px">
         <a href="#start" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#000;background:#fff;padding:13px 22px;border-radius:11px;transition:transform .2s ease,box-shadow .2s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(255,255,255,0.14)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Run a Node <span style="font-family:'JetBrains Mono',monospace">→</span></a>
         <a href="#requirements" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:15px;font-weight:500;color:#fff;border:1px solid rgba(255,255,255,0.16);padding:13px 22px;border-radius:11px;transition:border-color .2s ease,background .2s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.16)';this.style.background='transparent'">See requirements</a>
@@ -240,28 +246,28 @@
 
   <!-- ============ EARN STREAMS ============ -->
   <section style="max-width:1160px;margin:0 auto;padding:88px 28px 40px">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">Four ways a node earns</div>
-    <h2 style="margin:0 0 44px;font-size:clamp(26px,3.4vw,40px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:20ch">Every request you serve pays you.</h2>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">Four ways a node serves</div>
+    <h2 style="margin:0 0 44px;font-size:clamp(26px,3.4vw,40px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:20ch">Four kinds of traffic, one node.</h2>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
       <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 01</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">SERVE 01</div>
         <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve tunnels</h3>
-        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Forward HTTP and TCP traffic for tunnels opened through your node, putting local services on public HTTPS URLs, and earn for the bytes you carry.</p>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Forward HTTP and TCP traffic for tunnels opened through your node, putting local services on public HTTPS URLs.</p>
       </div>
       <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 02</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">SERVE 02</div>
         <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve the proxy</h3>
-        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Execute deduplicated HTTP as a forward or reverse proxy for the network and collect the x402 per-request fee on every call you handle.</p>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Execute deduplicated HTTP as a forward or reverse proxy for the network.</p>
       </div>
       <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 03</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">SERVE 03</div>
         <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Lease your IP</h3>
-        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Offer a verified, long-lived static IPv4 address into the shared pool and earn whenever apps lease it to route through a whitelisted IP.</p>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Offer a verified, long-lived static IPv4 address into the shared pool for apps that need to route through a whitelisted IP.</p>
       </div>
       <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;background:rgba(255,255,255,0.018);transition:border-color .25s ease,transform .25s ease" onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='none'">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">EARN 04</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px">SERVE 04</div>
         <h3 style="margin:0 0 9px;font-size:17px;font-weight:600">Serve WebSockets</h3>
-        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Host prepaid, metered WebSocket sessions. Clients pay up front over x402; you earn for the time and data you serve.</p>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.55)">Host metered WebSocket sessions, bounded by time and data, and close each one cleanly when its budget runs out.</p>
       </div>
     </div>
   </section>
@@ -317,7 +323,7 @@
   <!-- ============ STEPS ============ -->
   <section id="start" style="border-top:1px solid rgba(255,255,255,0.07);scroll-margin-top:70px">
     <div style="max-width:1160px;margin:0 auto;padding:88px 28px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">From install to earning</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:18px">From install to live</div>
       <h2 style="margin:0 0 48px;font-size:clamp(26px,3.4vw,40px);line-height:1.05;letter-spacing:-0.025em;font-weight:600;max-width:18ch">Three steps to a live node.</h2>
 
       <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(255,255,255,0.1)">
@@ -379,10 +385,10 @@
         </details>
         <details style="border-bottom:1px solid rgba(255,255,255,0.08)">
           <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(15px,1.6vw,18px);font-weight:600;letter-spacing:-0.01em;color:#fff">
-            <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">How does a node get paid?</h3>
+            <h3 style="margin:0;font-size:inherit;font-weight:inherit;letter-spacing:inherit">Do nodes earn rewards during the beta?</h3>
             <span aria-hidden="true" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:20px;color:rgba(255,255,255,0.4)">+</span>
           </summary>
-          <p style="margin:0;padding:0 0 24px;font-size:14.5px;line-height:1.65;color:rgba(255,255,255,0.58);max-width:76ch">Every billable action on the network is an x402 payment, and the node that served it collects the fee. Rewards are equally distributed across the active set — there are no staking tiers and no privileged validators, so a node earns from the work it does rather than from the size of a stake.</p>
+          <p style="margin:0;padding:0 0 24px;font-size:14.5px;line-height:1.65;color:rgba(255,255,255,0.58);max-width:76ch">No. No rewards are paid during the public beta, and the network is free to use. The beta exists to expand the network and find viable nodes: machines that pass admission and keep passing the heartbeat and re-tests under real traffic. Registration is complete, payout addresses included, so a node that joins now is fully set up once the reward model is decided.</p>
         </details>
         <details style="border-bottom:1px solid rgba(255,255,255,0.08)">
           <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;font-size:clamp(15px,1.6vw,18px);font-weight:600;letter-spacing:-0.01em;color:#fff">
