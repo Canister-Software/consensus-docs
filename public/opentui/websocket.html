@@ -87,6 +87,7 @@
 
     /* ── Messages ────────────────────────────────── */
     .msgs { flex:1; display:flex; flex-direction:column; min-height:0; }
+    @media (max-width:600px){ .tui { min-height:0 !important; } }
     .mtable { width:100%; border-collapse:collapse; table-layout:fixed; }
     .mtable col.c-time { width:104px; }
     .mtable col.c-dir  { width:54px; }
@@ -241,7 +242,8 @@
     (function () {
       const $ = id => document.getElementById(id);
       const body = $('msg-body');
-      const MAX = 20;
+      // 20 messages on desktop; 6 at phone width so the embedded frame stays square.
+      const MAX = window.matchMedia('(max-width: 600px)').matches ? 6 : 20;
 
       const SERVER_PUSHES = [
         'pong', '{"type":"tick","seq":%N,"price":%P}', '{"event":"presence","online":%O}',

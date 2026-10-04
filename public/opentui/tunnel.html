@@ -177,6 +177,13 @@
       gap: 12px;
     }
     @media (max-width: 1000px) { .tiles { grid-template-columns: 1fr 1fr 1fr; } }
+    /* Phone-width embed: keep the frame roughly square — three tiles on one row,
+       no latency strip, and fewer activity rows (MAX_ROWS in the script below). */
+    @media (max-width: 600px) {
+      .tui { min-height: 0 !important; }
+      .tiles .tile:nth-child(n+4) { display: none; }
+      .tui .latstrip { display: none; }
+    }
     .tile {
       border: 1px solid var(--hl-med);
       padding: 9px 12px 8px;
@@ -478,7 +485,8 @@
       };
 
       const body = document.getElementById('traffic-body');
-      const MAX_ROWS = 20;
+      // 20 rows on desktop; 6 at phone width so the embedded frame stays square.
+      const MAX_ROWS = window.matchMedia('(max-width: 600px)').matches ? 6 : 20;
       let rowSeq = 0;
 
       function now() {
@@ -539,9 +547,10 @@
         };
       }
 
-      // Seed initial 20 rows (chronological, newest appended to top)
+      // Seed initial rows (chronological, newest appended to top)
       function seed() {
         body.innerHTML = '';
+        document.getElementById('shown-count').textContent = String(MAX_ROWS);
         for (let i = 0; i < MAX_ROWS; i++) {
           const e = seedEntry();
           // backdate times slightly
