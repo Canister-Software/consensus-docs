@@ -1,6 +1,6 @@
 ---
 title: Package
-description: Installing cli package
+description: Install the Consensus CLI and SDK package from npm.
 sidebar:
   order: 2
 ---

@@ -1,6 +1,6 @@
 ---
 title: Node API
-description: Introduce Node interface
+description: The interface a Consensus node exposes to the network.
 sidebar:
   order: 3
 ---

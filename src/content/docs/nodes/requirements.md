@@ -1,6 +1,6 @@
 ---
 title: Requirements
-description: Introduce Node requirements 
+description: The hardware, network, and benchmark requirements a Consensus node must meet.
 sidebar:
   order: 1
 ---

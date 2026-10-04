@@ -1,6 +1,6 @@
 ---
-title: Routing a request 
-description: Introduce Node requirements 
+title: Routing a request
+description: Route an HTTP request through the Consensus network.
 sidebar:
   order: 1
 ---

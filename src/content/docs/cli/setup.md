@@ -1,6 +1,6 @@
 ---
 title: Setup
-description: Setting up Consensus cli
+description: Set up the Consensus CLI and configure local profiles.
 sidebar:
   order: 1
 ---

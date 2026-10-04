@@ -1,6 +1,6 @@
 ---
 title: Setting up a node
-description: How to join network
+description: Install, benchmark, and register a node to join the Consensus network.
 sidebar:
   order: 2
 ---

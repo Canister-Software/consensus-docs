@@ -1,6 +1,6 @@
 ---
 title: Responsiblities
-description: Introduce Node responsiblities
+description: What a Consensus node is expected to do once it joins the network.
 sidebar:
   order: 2
 ---
