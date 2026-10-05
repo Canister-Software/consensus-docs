@@ -29,6 +29,9 @@ export default defineConfig({
 		}),
 		starlight({
 			title: 'Consensus Docs',
+			// Raster icon on a black tile (readable on any search-result background);
+			// the theme-aware SVG for browser tabs is added in src/components/Favicons.astro.
+			favicon: '/favicon.ico',
 			// src/pages/404.astro replaces Starlight's built-in 404 page
 			disable404Route: true,
 
