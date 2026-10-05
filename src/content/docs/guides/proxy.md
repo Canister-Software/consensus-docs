@@ -1,7 +1,8 @@
 ---
-title: Proxying HTTP requests
+title: 'HTTP proxy API with request deduplication and caching'
 description: 'Route your app''s outbound HTTP requests through the Consensus forward proxy: deduplicated, cached, and pinned to a region or node, with ProxyClient or POST /proxy.'
 sidebar:
+  label: 'Proxying HTTP requests'
   order: 1
 ---
 

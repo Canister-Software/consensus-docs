@@ -1,7 +1,8 @@
 ---
-title: What is the Facilitator?
-description: How the Consensus facilitator verifies x402 payment proofs off-chain and which services use it
+title: 'Public x402 facilitator for Base, Solana, and ICP'
+description: 'A public x402 facilitator that verifies and settles payments on Base and Solana mainnet, their testnets, and the Internet Computer test ledger, so your API can charge per request without running chain infrastructure.'
 sidebar:
+  label: 'What is the Facilitator?'
   order: 1
 ---
 

@@ -1,7 +1,8 @@
 ---
-title: Static IP for API whitelisting
+title: 'Static outbound IP address for API whitelisting'
 description: Send your app's outbound requests from one stable IPv4 address, so you can whitelist it once with an upstream API, payment provider, or firewall.
 sidebar:
+  label: 'Static IP for whitelisting'
   order: 4
 ---
 
@@ -83,3 +84,4 @@ Register that address with the upstream service, and you are done.
 - [Proxying HTTP requests](/guides/proxy/): everything `ProxyClient` can do
 - [Metered WebSocket sessions](/guides/websockets/): open WebSocket sessions through your leased node
 - [What is Consensus?](/protocol/info/#ip-whitelisting): why IP whitelisting is hard in replicated systems
+- [Static outbound IP for serverless apps](/alternatives/static-outbound-ip/): how this compares with Fixie, QuotaGuard, and NAT gateways

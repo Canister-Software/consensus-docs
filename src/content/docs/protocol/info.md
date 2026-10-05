@@ -1,6 +1,8 @@
 ---
-title: What is Consensus Protocol?
+title: 'What is Consensus? A decentralized proxy, tunnel, and static IP network'
 description: A decentralized x402 network for proxied HTTP, tunnels, stable IPs, and metered WebSocket sessions
+sidebar:
+  label: 'What is Consensus?'
 ---
 
 Consensus is a decentralized **HTTPS protocol** that operates as a [proxy](https://en.wikipedia.org/wiki/Proxy_server) on behalf of applications. More simply, Consensus Protocol is a network for sharing compute resources.

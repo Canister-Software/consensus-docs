@@ -1,7 +1,8 @@
 ---
-title: Expose localhost with an HTTPS tunnel
+title: 'Expose localhost to the internet with HTTPS and TCP tunnels'
 description: Put a local web server, device, or TCP service on a public HTTPS URL with one command. An ngrok alternative with no account, no API key, and free during the beta.
 sidebar:
+  label: 'HTTPS & TCP tunnels'
   order: 2
 ---
 
@@ -82,3 +83,4 @@ Because the connection is outbound from your machine, you do not need to open a 
 - [Proxying HTTP requests](/guides/proxy/): route your app's outbound requests through the network
 - [Static IP for API whitelisting](/guides/static-ip/): send traffic from one stable IP address
 - [Metered WebSocket sessions](/guides/websockets/): open prepaid, bounded WebSocket sessions
+- Coming from another tool? See the [ngrok alternative](/alternatives/ngrok/) and [Cloudflare Tunnel alternative](/alternatives/cloudflare-tunnel/) comparisons
