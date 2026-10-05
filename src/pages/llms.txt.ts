@@ -11,6 +11,7 @@ const SECTIONS: Array<[string, string]> = [
 	['cli', 'CLI'],
 	['facilitator', 'Facilitator'],
 	['guides', 'Guides'],
+	['alternatives', 'Alternatives and comparisons'],
 ];
 
 export const GET: APIRoute = async () => {
@@ -54,10 +55,15 @@ export const GET: APIRoute = async () => {
 		'## Entry points',
 		'',
 		`- [Consensus overview](${SITE}/): tunnels, proxies, stable IPs, and metered WebSockets.`,
-		`- [Expose localhost with an HTTPS tunnel](${SITE}/guides/tunnels/): public HTTPS and TCP tunnels from one CLI command.`,
-		`- [Proxying HTTP requests](${SITE}/guides/proxy/): route outbound HTTP through the network with ProxyClient or POST /proxy.`,
-		`- [Static IP for API whitelisting](${SITE}/guides/static-ip/): pin traffic to one node and whitelist its IPv4 address.`,
-		`- [Metered WebSocket sessions](${SITE}/guides/websockets/): prepaid sessions bounded by time and data.`,
+		`- [Expose localhost to the internet with HTTPS and TCP tunnels](${SITE}/guides/tunnels/): public HTTPS and TCP tunnels from one CLI command, with no account.`,
+		`- [HTTP proxy API with request deduplication and caching](${SITE}/guides/proxy/): route outbound HTTP through the network with ProxyClient or POST /proxy.`,
+		`- [Static outbound IP address for API whitelisting](${SITE}/guides/static-ip/): pin traffic to one node and whitelist its IPv4 address.`,
+		`- [Pay-per-use WebSocket sessions](${SITE}/guides/websockets/): prepaid sessions bounded by time and data.`,
+		`- [ngrok alternative](${SITE}/alternatives/ngrok/): Consensus vs ngrok for exposing localhost, with no sign-up.`,
+		`- [Cloudflare Tunnel alternative](${SITE}/alternatives/cloudflare-tunnel/): Consensus vs cloudflared, with no account or domain.`,
+		`- [Static outbound IP for serverless apps](${SITE}/alternatives/static-outbound-ip/): Consensus vs Fixie, QuotaGuard, and NAT gateways.`,
+		`- [Public x402 facilitator](${SITE}/facilitator/overview/): verify and settle x402 payments on Base, Solana, and ICP.`,
+		`- [Charge per request for your API with x402](${SITE}/facilitator/resource-server/): monetize an Express API with x402.`,
 		`- [Run a node](${SITE}/join/): hardware requirements and the admission benchmark for node operators (no rewards are paid during the beta).`,
 		`- [Full documentation text](${SITE}/llms-full.txt): every documentation page as one plain-text corpus.`,
 		'',

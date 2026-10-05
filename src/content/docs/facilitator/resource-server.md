@@ -1,7 +1,8 @@
 ---
-title: Resource Server
-description: Set up an x402-protected Express server that verifies payments through the Consensus facilitator
+title: 'Charge per request for your API with x402'
+description: 'Monetize an API with x402: set up an Express server that charges per request in USDC and verifies payments through the Consensus facilitator, with no accounts or API keys for your users.'
 sidebar:
+  label: 'Resource Server'
   order: 2
 ---
 

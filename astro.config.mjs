@@ -20,8 +20,8 @@ export default defineConfig({
 				if (item.url === 'https://docs.consensus.canister.software/') {
 					item.priority = 1.0;
 				}
-				// Node-operator + quickstart funnels: slight boost
-				else if (/\/(join|guides\/node|quickstart)\//.test(item.url)) {
+				// Search-intent pages (guides, comparisons, x402) + node/quickstart funnels
+				else if (/\/(join|guides|alternatives|quickstart|facilitator\/(overview|resource-server))\//.test(item.url)) {
 					item.priority = 0.9;
 				}
 				return item;
@@ -71,6 +71,10 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					autogenerate: {directory:'guides'},
+				},
+				{
+					label: 'Alternatives',
+					autogenerate: {directory:'alternatives'},
 				},
 			],
 		}),

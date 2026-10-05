@@ -1,7 +1,8 @@
 ---
-title: Metered WebSocket sessions
+title: 'Pay-per-use WebSocket sessions with time and data limits'
 description: Open prepaid WebSocket sessions bounded by time and data, with SocketClient or the CLI. No accounts or API keys, and free during the beta.
 sidebar:
+  label: 'Metered WebSockets'
   order: 3
 ---
 
