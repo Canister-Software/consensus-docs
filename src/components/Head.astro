@@ -1,6 +1,7 @@
 ---
 import type { StarlightRouteData } from '@astrojs/starlight/route-data';
 import { ogImagePath } from '../og';
+import Favicons from './Favicons.astro';
 
 const { head, id } = Astro.locals.starlightRoute;
 type HeadEntry = StarlightRouteData['head'][number];
@@ -36,26 +37,7 @@ const hasTwitterCard = hasMeta('name', 'twitter:card');
 <link rel="preload" href="/fonts/space-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
 
-<!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" id="os-favicon" />
-
-<script is:inline>
-  (() => {
-    const darkModeHref = '/favicon.svg';
-    const lightModeHref = '/favicon-dark.svg';
-    const link = document.querySelector('link#os-favicon');
-    if (!link) return;
-
-    const apply = (isDark) => {
-      const base = isDark ? darkModeHref : lightModeHref;
-      link.setAttribute('href', `${base}?v=${Date.now()}`);
-    };
-
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    apply(mq.matches);
-    mq.addEventListener('change', (e) => apply(e.matches));
-  })();
-</script>
+<Favicons />
 
 <script is:inline>
   (() => {
